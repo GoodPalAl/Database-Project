@@ -158,21 +158,6 @@ class Login {
 				}
 
 
-				// build query, here we get info about all databases"
-				String query = "SELECT * FROM accounts;";
-
-				// execute query
-				//Statement statement = connection.createStatement ();
-				statement.executeUpdate("INSERT INTO petsit_accnts(username," +
-																"name,age,joined,rating,role)" +
-																"VALUES ('jdbc', 'jd bc', 0, TIMESTAMP" +
-																"'2020-01-01 03:04:00', 3, 'pet owner')");
-				ResultSet rs = statement.executeQuery (query);
-
-				// return query result
-				while ( rs.next () ) {
-					System.out.println ("username: " + rs.getString ("username"));
-				}
 				connection.close ();
       }
       catch (java.sql.SQLException e) {
