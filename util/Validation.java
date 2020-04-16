@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.io.Console;
 
 public class Validation {
 	final public static SimpleDateFormat FORMAT =
@@ -140,5 +141,164 @@ public class Validation {
 			}
 		}
 		return false;
+	}
+
+	static public String getUsername(Statement statement) {
+		Scanner input = new Scanner(System.in);
+		String username = null, query;
+		do {
+			if (username != null) {
+				System.out.println("Username already exists\n");
+				System.out.println("Username: ");
+			}
+			username = input.nextLine();
+			while (username.length() == 0 ||
+						 username.length() > Validation.MAX_LENGTH) {
+				System.out.println("Usernames must be " + Validation.MAX_LENGTH +
+													 " characters or fewer");
+				System.out.print("Username: ");
+				username = input.nextLine();
+			}
+			query = "SELECT username FROM accounts WHERE username = '" +
+				username + "';";
+		}	while (Validation.numMatches(query, statement) > 0);
+		return username;
+	}
+
+	static public String getPassword() {
+		Scanner input = new Scanner(System.in);
+		String password;
+		// Attempt to read in the password with obscured input for added
+		// added security
+		Console cons;
+		String confirmedPassword = null;
+		if ((cons = System.console()) != null) {
+			do {
+				if (confirmedPassword != null)
+					System.out.println("Passwords do not match.");
+				System.out.print("***NOTE: For security sake, the console will not"
+												 + " display input characters (input will appear "
+												 + "blank)***\nPassword: ");
+				password = String.valueOf(cons.readPassword());
+				while (!Validation.isValidPassword(password)) {
+					System.out.println("Please enter a password that meets the" +
+														 " following criteria:\n"
+														 +Validation.PASSWORD_REQS);
+					System.out.print("***NOTE: For security sake, the console will "
+													 + " not display input characters (input will "
+													 + " appear blank)***\nPassword: ");
+					System.out.println("Password is not valid. "
+														 + Validation.PASSWORD_REQS);
+					System.out.print("Password: ");
+					password = String.valueOf(cons.readPassword());
+				}
+				System.out.print("Confirm password: ");
+				confirmedPassword =
+					String.valueOf(cons.readPassword());
+			} while (!confirmedPassword.equals(password));
+		}
+		// Display as plain text instead
+		else {
+			System.out.print("Password: ");
+			password = input.nextLine();
+			while (!Validation.isValidPassword(password)) {
+				System.out.println("Password is not valid. "
+													 + Validation.PASSWORD_REQS);
+				System.out.print("Password: ");
+				password = input.nextLine();
+			}
+		}
+		System.out.println();
+		return password;
+	}
+
+	static public String getFullname() {
+		Scanner input = new Scanner(System.in);
+		String fullname = input.nextLine();
+		System.out.println();
+		while (fullname.length() == 0 ||
+					 fullname.length() > Validation.MAX_LENGTH) {
+			System.out.println("Full names must be " + Validation.MAX_LENGTH +
+												 " characters or fewer");
+			System.out.print("Enter your full name: ");
+			fullname = input.nextLine();
+			System.out.println();
+		}
+		return fullname;
+	}
+
+	static public String getEmail(Statement statement) {
+		Scanner input = new Scanner(System.in);
+		String email = input.nextLine();
+		System.out.println();
+		while (!Validation.isValidEmail(email, statement)) {
+			System.out.println("Please enter a valid email (less than " +
+												 Validation.MAX_LENGTH + " characters) in format:"
+												 + "\n\tusername@website.domain");
+			System.out.print("Email: ");
+			email = input.nextLine();
+		}
+		return email;
+	}
+
+	static public String getCity() {
+		Scanner input = new Scanner(System.in);
+		String city = input.nextLine();
+		System.out.println();
+		while (city.length() == 0 || city.length() > Validation.MAX_LENGTH) {
+			System.out.println("City must be " + Validation.MAX_LENGTH +
+												 " characters or fewer");
+			System.out.print("Please enter your city name: ");
+			city = input.nextLine();
+			System.out.println();
+		}
+		return city;
+	}
+
+	static public String getState() {
+		Scanner input = new Scanner(System.in);
+		String state = input.nextLine();
+		System.out.println();
+		while (!Validation.isAState(state)) {
+			System.out.print("Please enter a valid two character "
+											 + "state code: ");
+			state = input.nextLine();
+			System.out.println();
+		}
+		return state;
+	}
+
+	static public boolean getIsPetSitter() {
+		Scanner input = new Scanner(System.in);
+		input.useDelimiter("");
+		char c = input.next().charAt(0);
+		input.nextLine();
+		System.out.println();
+		while (c != 'y' && c != 'n' && c != 'Y' && c != 'N') {
+			System.out.println("Please enter either y or n.");
+			System.out.print("Are you a pet sitter (y/n)? ");
+			c = input.next().charAt(0);
+			input.nextLine();
+			System.out.println();
+		}
+
+		return c == 'y' || c == 'Y' ? true : false;
+	}
+
+	static public boolean getIsPetOwner() {
+		Scanner input = new Scanner(System.in);
+		input.useDelimiter("");
+		char c = input.next().charAt(0);
+		input.nextLine();
+		System.out.println();
+		while (c != 'y' && c != 'n' && c != 'Y' && c != 'N') {
+			System.out.println("Please enter either y or n.");
+			System.out.print("Are you a pet owner (y/n)? ");
+			c = input.next().charAt(0);
+			input.nextLine();
+			System.out.println();
+		}
+
+		return c == 'y' || c == 'Y' ? true : false;
 	}
 }
