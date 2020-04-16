@@ -31,14 +31,14 @@ public class Profile {
 			+ "username = '" + curUsername + "';";
 	}
 
-	public static void updateUsername(String curUsername,
-																		Statement statement) {
+	public static void updateUsername() {
 		Scanner input = new Scanner(System.in);
 		System.out.print("Enter new username: ");
-		String oldUsername = curUsername;
-		curUsername = Validation.getUsername(statement);
+		String oldUsername = Validation.curUsername;
+		Validation.curUsername = Validation.getUsername();
 		try {
-			statement.executeUpdate(genUpdateSQL("username", curUsername,
+			Validation.statement.executeUpdate(genUpdateSQL("username",
+																					 Validation.curUsername,
 																					 oldUsername));
 		}
 		catch (java.sql.SQLException e) {
@@ -47,94 +47,102 @@ public class Profile {
 		}
 	}
 
-	public static void updateFullname(String curUsername,
-																		Statement statement) {
+	public static void updateFullname() {
 		Scanner input = new Scanner(System.in);
 		System.out.print("Enter full name: ");
 		String newFullname = Validation.getFullname();
-		try { statement.executeUpdate(genUpdateSQL("fullname", newFullname,
-																							 curUsername)); }
+		try { Validation.statement.executeUpdate(genUpdateSQL("fullname", newFullname,
+																							 Validation.curUsername)); }
 		catch (java.sql.SQLException e) {
 			System.err.println(e);
 			System.exit(-1);
 		}
 	}
 
-	public static void updatePassword(String curUsername,
-																		Statement statement) {
+	public static void updatePassword() {
 		Scanner input = new Scanner(System.in);
 		System.out.print("Enter new password: ");
 		String newPassword = Validation.getPassword();
-		try { statement.executeUpdate(genUpdateSQL("password", newPassword,
-																							 curUsername)); }
+		try { Validation.statement.executeUpdate(genUpdateSQL("password", newPassword,
+																							 Validation.curUsername)); }
 		catch (java.sql.SQLException e) {
 			System.err.println(e);
 			System.exit(-1);
 		}
 	}
 
-	public static void updateEmail(String curUsername,
-																 Statement statement) {
+	public static void updateEmail() {
 		Scanner input = new Scanner(System.in);
 		System.out.print("Enter new email: ");
-		String newEmail = Validation.getEmail(statement);
-		try { statement.executeUpdate(genUpdateSQL("email", newEmail,
-																							 curUsername)); }
+		String newEmail = Validation.getEmail();
+		try {
+			Validation.statement.executeUpdate(genUpdateSQL("email",
+																											newEmail,
+																											Validation
+																											.curUsername));
+		}
 		catch (java.sql.SQLException e) {
 			System.err.println(e);
 			System.exit(-1);
 		}
 	}
 
-	public static void updateIsSitter(String curUsername,
-																		Statement statement) {
+	public static void updateIsSitter() {
 		Scanner input = new Scanner(System.in);
 		System.out.print("Are you a pet sitter (y/n)? ");
 		boolean newIsSitter = Validation.getIsPetSitter();
-		try { statement.executeUpdate(genUpdateSQLNoQuotes("issitter",
-																											 newIsSitter,
-																											 curUsername)); }
+		try {
+			Validation.statement.executeUpdate(genUpdateSQLNoQuotes("issitter",
+																															newIsSitter,
+																															Validation
+																															.curUsername)
+																				 );
+		}
 		catch (java.sql.SQLException e) {
 			System.err.println(e);
 			System.exit(-1);
 		}
 	}
 
-	public static void updateIsOwner(String curUsername,
-																	 Statement statement) {
+	public static void updateIsOwner() {
 		Scanner input = new Scanner(System.in);
 		System.out.print("Are you a pet owner (y/n)? ");
 		boolean newIsOwner = Validation.getIsPetOwner();
-		try { statement.executeUpdate(genUpdateSQLNoQuotes("isowner",
-																											 newIsOwner,
-																											 curUsername)); }
+		try {
+			Validation.statement.executeUpdate(genUpdateSQLNoQuotes("isowner",
+																															newIsOwner,
+																															Validation
+																															.curUsername)
+																				 );
+		}
 		catch (java.sql.SQLException e) {
 			System.err.println(e);
 			System.exit(-1);
 		}
 	}
 
-	public static void updateCity(String curUsername,
-																Statement statement) {
+	public static void updateCity() {
 		Scanner input = new Scanner(System.in);
 		System.out.print("Please enter your city name: ");
 		String newCity = Validation.getCity();
-		try { statement.executeUpdate(genUpdateSQL("city", newCity,
-																							 curUsername)); }
+		try { Validation.statement.executeUpdate(genUpdateSQL("city", newCity,
+																							 Validation.curUsername)); }
 		catch (java.sql.SQLException e) {
 			System.err.println(e);
 			System.exit(-1);
 		}
 	}
 
-	public static void updateState(String curUsername,
-																 Statement statement) {
+	public static void updateState() {
 		Scanner input = new Scanner(System.in);
 		System.out.print("Enter two character state code (for example "
 										 + "enter Florida as FL): ");
 		String newState = Validation.getState();
-		try { statement.executeUpdate(genUpdateSQL("state", newState,
-																							 curUsername)); }
+		try {
+			Validation.statement.executeUpdate(genUpdateSQL("state", newState,
+																											Validation
+																											.curUsername));
+		}
 		catch (java.sql.SQLException e) {
 			System.err.println(e);
 			System.exit(-1);
@@ -148,30 +156,14 @@ public class Profile {
 	static {
 		try {
 			updateUserField = new HashMap<Character, Method>();
-			updateUserField.put('u', Profile.class.getMethod("updateUsername",
-																											 String.class,
-																											 Statement.class));
-			updateUserField.put('p', Profile.class.getMethod("updatePassword",
-																											 String.class,
-																											 Statement.class));
-			updateUserField.put('f', Profile.class.getMethod("updateFullname",
-																											 String.class,
-																											 Statement.class));
-			updateUserField.put('e', Profile.class.getMethod("updateEmail",
-																											 String.class,
-																											 Statement.class));
-			updateUserField.put('s', Profile.class.getMethod("updateIsSitter",
-																											 String.class,
-																											 Statement.class));
-			updateUserField.put('o', Profile.class.getMethod("updateIsOwner",
-																											 String.class,
-																											 Statement.class));
-			updateUserField.put('c', Profile.class.getMethod("updateCity",
-																											 String.class,
-																											 Statement.class));
-			updateUserField.put('t', Profile.class.getMethod("updateState",
-																											 String.class,
-																											 Statement.class));
+			updateUserField.put('u', Profile.class.getMethod("updateUsername"));
+			updateUserField.put('p', Profile.class.getMethod("updatePassword"));
+			updateUserField.put('f', Profile.class.getMethod("updateFullname"));
+			updateUserField.put('e', Profile.class.getMethod("updateEmail"));
+			updateUserField.put('s', Profile.class.getMethod("updateIsSitter"));
+			updateUserField.put('o', Profile.class.getMethod("updateIsOwner"));
+			updateUserField.put('c', Profile.class.getMethod("updateCity"));
+			updateUserField.put('t', Profile.class.getMethod("updateState"));
 		}
 		catch (java.lang.NoSuchMethodException e) {
 			System.err.println(e);
@@ -179,14 +171,17 @@ public class Profile {
 		}
 	}
 
-	public static void displayProfile(String curUsername, Statement statement) {
+	public static void displayProfile() {
 		try {
-			final String QUERY =
-				"SELECT username, fullname, email, issitter, isowner, rating, "
-				+ "tsjoined, city, state FROM accounts WHERE username = '" +
-				curUsername + "';";
-
-			ResultSet rs = statement.executeQuery(QUERY);
+			// String literal used to ensure most recent curUsername value used
+			// for query
+			ResultSet rs
+				= Validation.statement.executeQuery("SELECT username, fullname, "
+																						+"email, issitter, isowner, " +
+																						"rating, tsjoined, city, " +
+				                                    "state FROM accounts WHERE "
+																						+ "username = '" +
+																						Validation.curUsername + "';");
 			if (rs.next()) {
 				System.out.println("username: " + rs.getString("username"));
 				System.out.println("fullname: " + rs.getString("fullname"));
@@ -216,15 +211,11 @@ public class Profile {
 		}
 	}
 
-	public static void editProfile(String curUsername, Statement statement) {
+	public static void editProfile() {
 			final String OPTIONS
 				= "Enter 'u' for username, 'p' for password, 'f' for fullname," +
           "'e' for email, 's' for pet sitter, 'o' for pet owner, 'c' for "
 				  +"city, 't' for state, or 'q' to cancel editing.";
-			final String QUERY =
-				"SELECT username, fullname, email, issitter, isowner, rating, "
-				+ "tsjoined, city, state FROM accounts WHERE username = '" +
-				curUsername + "';";
 			Scanner input = new Scanner(System.in);
 			char response;
 			boolean badOption = false;
@@ -239,8 +230,8 @@ public class Profile {
 														 + "update:\n" + OPTIONS);
 					response = input.nextLine().charAt(0);
 				}
-				try {updateUserField.get(response).invoke(null,
-																									curUsername, statement);
+				try {
+					updateUserField.get(response).invoke(null);
 					badOption = false;
 				}
 				catch (Exception e) { badOption = true; }
@@ -251,9 +242,9 @@ public class Profile {
 	// Method used to transfer current page to Profile. Returns character
 	// matching next page destination. Assumes curUsername has been validated
 	// prior.
-	public static char goToProfile(String curUsername, Statement statement) {
+	public static char goToProfile() {
 		// Display current profile information
-		displayProfile(curUsername, statement);
+		displayProfile();
 		// Prompt user if they would like to edit profile
 		Scanner input = new Scanner(System.in);
 		char c;
@@ -267,7 +258,7 @@ public class Profile {
 			System.out.println();
 		}
 		if (c == 'y' || c == 'Y')
-			editProfile(curUsername, statement);
+			editProfile();
 		// Promp user if they would like to navigate to another page
 		System.out.println(Validation.OPTIONS);
 		c = input.nextLine().toLowerCase().charAt(0);
