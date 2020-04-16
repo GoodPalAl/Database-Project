@@ -10,6 +10,11 @@ import java.text.SimpleDateFormat;
 import java.io.Console;
 
 public class Validation {
+	// Shared state between pages for curUsername. Assumed to be validated
+	// prior to being set externally.
+	public static String curUsername;
+	public static Statement statement;
+
 	final public static SimpleDateFormat FORMAT =
 		new SimpleDateFormat("MMMMM dd yyyy");
 
@@ -35,14 +40,13 @@ public class Validation {
 			 "UT", "VT", "VA", "WA", "WV", "WI", "WY"};
 
 	// Returns number of record matches for a particular query.
-	public static int numMatches(String query, Statement statement) {
-		return numMatches(query, "accounts", statement);
+	public static int numMatches(String query) {
+		return numMatches(query, "accounts");
 	}
 
-	public static int numMatches(String query, String database,
-															 Statement statement) {
+	public static int numMatches(String query, String database) {
 		try {
-			ResultSet rs = statement.executeQuery(query);
+			ResultSet rs = Validation.statement.executeQuery(query);
 			if (rs != null) {
 				rs.last();
 				return rs.getRow();
@@ -111,7 +115,7 @@ public class Validation {
 
 	// Returns true if format is "username@website.top-level-domain" and
 	// false otherwise
-	public static boolean isValidEmail(String email, Statement statement) {
+	public static boolean isValidEmail(String email) {
 		final String query = "SELECT * FROM accounts WHERE email = '" +
 			                   email + "';";
 		Scanner strScanner = new Scanner(email);
@@ -130,7 +134,7 @@ public class Validation {
 						emailLength += strScanner.next().length();
 						// Check if email already exists
 						if (emailLength < MAX_LENGTH) {
-							if (numMatches(query, statement) > 0)
+							if (numMatches(query) > 0)
 								System.out.println("Account already exists associated with"
 																	 + " email.");
 							else
@@ -143,7 +147,7 @@ public class Validation {
 		return false;
 	}
 
-	static public String getUsername(Statement statement) {
+	static public String getUsername() {
 		Scanner input = new Scanner(System.in);
 		String username = null, query;
 		do {
@@ -161,7 +165,7 @@ public class Validation {
 			}
 			query = "SELECT username FROM accounts WHERE username = '" +
 				username + "';";
-		}	while (Validation.numMatches(query, statement) > 0);
+		}	while (Validation.numMatches(query) > 0);
 		return username;
 	}
 
@@ -227,11 +231,11 @@ public class Validation {
 		return fullname;
 	}
 
-	static public String getEmail(Statement statement) {
+	static public String getEmail() {
 		Scanner input = new Scanner(System.in);
 		String email = input.nextLine();
 		System.out.println();
-		while (!Validation.isValidEmail(email, statement)) {
+		while (!Validation.isValidEmail(email)) {
 			System.out.println("Please enter a valid email (less than " +
 												 Validation.MAX_LENGTH + " characters) in format:"
 												 + "\n\tusername@website.domain");
