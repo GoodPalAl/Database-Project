@@ -14,7 +14,7 @@ public class Login {
 	/* ASCII art generated thanks to wonderful text->ASCII art tool from
 	 * http://patorjk.com/software/taag/#p=display&h=3&v=3&f=Varsity&t=petsitting_%0Aservices.com
 	 * ASCII dachsund is original art from Hayley Jane Wakenshaw*/
-	final static public String banner =
+	final static public String BANNER =
 		"___________________________________________________________________________\n" +
 		"               _         _  _    _   _                                     \n" +
 		"              / |_      (_)/ |_ / |_(_)                                    \n" +
@@ -41,11 +41,7 @@ public class Login {
 		"Welcome to petsitting_services.com!\n\n",
 		PROMPT = "Enter 'l' to login, 'c' to create account, or 'q' to quit.";
 
-	public static String curUsername;
-
-	public static Statement statement;
-
-	public static boolean login(Scanner input, Statement statement) {
+	public static boolean login(Scanner input) {
 		String username, password;
 		System.out.print("Enter username: ");
 		username = input.nextLine();
@@ -69,11 +65,11 @@ public class Login {
 			= "SELECT * FROM accounts WHERE username = '" + username
 			+ "' AND password = crypt('" + password + "', password);";
 		//ResultSet rs = statement.executeQuery (query);
-		int matchesSize = Validation.numMatches(query, statement);
+		int matchesSize = Validation.numMatches(query);
 		// Get size of row and ensure it equals one
 		if (matchesSize == 1) {
-			curUsername = username;
-			System.out.println("Welcome " + curUsername + "!\n");
+			Validation.curUsername = username;
+			System.out.println("Welcome " + Validation.curUsername + "!\n");
 			return true;
 		}
 		else if (matchesSize == 0) {
@@ -88,14 +84,14 @@ public class Login {
 		return false;
 	}
 
-	public static void createAccount(Scanner input, Statement statement) {
+	public static void createAccount(Scanner input) {
 		String username, password, fullname, email, city, state, query;
 		boolean isSitter, isOwner;
 		int matchesSize = 0;
 		char c;
 
 		System.out.print("Username: ");
-		username = Validation.getUsername(statement);
+		username = Validation.getUsername();
 
 		System.out.println("Please enter a password that meets the" +
 											 " following criteria:\n"+Validation.PASSWORD_REQS);
@@ -105,7 +101,7 @@ public class Login {
 		fullname = Validation.getFullname();
 
 		System.out.print("Email: ");
-		email = Validation.getEmail(statement);
+		email = Validation.getEmail();
 
 		System.out.print("Please enter your city name: ");
 		city = Validation.getCity();
@@ -130,13 +126,13 @@ public class Login {
 			state + "');";
 
 		try {
-			statement.executeUpdate(insertCMD);
+			Validation.statement.executeUpdate(insertCMD);
 		}
 		catch (java.sql.SQLException e) {
 			System.err.println(e);
 			System.exit(-1);
 		}
-		curUsername = username;
+		Validation.curUsername = username;
 	}
 
 	public static void main (String args[]) {
@@ -154,18 +150,18 @@ public class Login {
 					= DriverManager.getConnection(//"jdbc:postgresql://dbhost:port/dbname", "user", "dbpass");
 																				"jdbc:postgresql://127.0.0.1:5432/final_project", "emma", "pass");
 
-				statement
+				Validation.statement
 					= connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
 																			 ResultSet.CONCUR_UPDATABLE);
-				System.out.println(banner + GREETING);
+				System.out.println(BANNER + GREETING);
 				while(true) {
 					System.out.println(PROMPT);
 					char response = input.nextLine().charAt(0);
-					if (response == 'l' && login(input, statement))
+					if (response == 'l' && login(input))
 						break;
 
 					else if (response == 'c') {
-						createAccount(input, statement);
+						createAccount(input);
 						break;
 					}
 
@@ -181,11 +177,11 @@ public class Login {
 				char response = input.nextLine().toLowerCase().charAt(0);
 				while(true) {
 					if (response == 'p')
-						response = Profile.goToProfile(curUsername, statement);
+						response = Profile.goToProfile();
 					else if (response == 's')
-						;//response = goToSearch(curUsername, statement);
+						;//response = goToSearch();
 					else if (response == 'c')
-						;//response = goToCreateOffer(curUsername, statement);
+						;//response = goToCreateOffer();
 					else if (response == 'q') {
 						connection.close();
 						System.exit(0);
