@@ -15,6 +15,8 @@ public class Validation {
 	public static String curUsername;
 	public static Statement statement;
 
+	public static Scanner input = new Scanner(System.in);
+
 	final public static SimpleDateFormat FORMAT =
 		new SimpleDateFormat("MMMMM dd yyyy");
 
@@ -148,29 +150,28 @@ public class Validation {
 	}
 
 	static public String getUsername() {
-		Scanner input = new Scanner(System.in);
 		String username = null, query;
 		do {
 			if (username != null) {
 				System.out.println("Username already exists\n");
 				System.out.println("Username: ");
 			}
-			username = input.nextLine();
+			username = Validation.input.nextLine();
 			while (username.length() == 0 ||
 						 username.length() > Validation.MAX_LENGTH) {
 				System.out.println("Usernames must be " + Validation.MAX_LENGTH +
 													 " characters or fewer");
 				System.out.print("Username: ");
-				username = input.nextLine();
+				username = Validation.input.nextLine();
 			}
 			query = "SELECT username FROM accounts WHERE username = '" +
 				username + "';";
 		}	while (Validation.numMatches(query) > 0);
+		System.out.println();
 		return username;
 	}
 
 	static public String getPassword() {
-		Scanner input = new Scanner(System.in);
 		String password;
 		// Attempt to read in the password with obscured input for added
 		// added security
@@ -204,12 +205,12 @@ public class Validation {
 		// Display as plain text instead
 		else {
 			System.out.print("Password: ");
-			password = input.nextLine();
+			password = Validation.input.nextLine();
 			while (!Validation.isValidPassword(password)) {
 				System.out.println("Password is not valid. "
 													 + Validation.PASSWORD_REQS);
 				System.out.print("Password: ");
-				password = input.nextLine();
+				password = Validation.input.nextLine();
 			}
 		}
 		System.out.println();
@@ -217,91 +218,87 @@ public class Validation {
 	}
 
 	static public String getFullname() {
-		Scanner input = new Scanner(System.in);
-		String fullname = input.nextLine();
+		String fullname = Validation.input.nextLine();
 		System.out.println();
 		while (fullname.length() == 0 ||
 					 fullname.length() > Validation.MAX_LENGTH) {
 			System.out.println("Full names must be " + Validation.MAX_LENGTH +
 												 " characters or fewer");
 			System.out.print("Enter your full name: ");
-			fullname = input.nextLine();
+			fullname = Validation.input.nextLine();
 			System.out.println();
 		}
 		return fullname;
 	}
 
 	static public String getEmail() {
-		Scanner input = new Scanner(System.in);
-		String email = input.nextLine();
+		String email = Validation.input.nextLine();
 		System.out.println();
 		while (!Validation.isValidEmail(email)) {
 			System.out.println("Please enter a valid email (less than " +
 												 Validation.MAX_LENGTH + " characters) in format:"
 												 + "\n\tusername@website.domain");
 			System.out.print("Email: ");
-			email = input.nextLine();
+			email = Validation.input.nextLine();
 		}
 		return email;
 	}
 
 	static public String getCity() {
-		Scanner input = new Scanner(System.in);
-		String city = input.nextLine();
+		String city = Validation.input.nextLine();
 		System.out.println();
 		while (city.length() == 0 || city.length() > Validation.MAX_LENGTH) {
 			System.out.println("City must be " + Validation.MAX_LENGTH +
 												 " characters or fewer");
 			System.out.print("Please enter your city name: ");
-			city = input.nextLine();
+			city = Validation.input.nextLine();
 			System.out.println();
 		}
 		return city;
 	}
 
 	static public String getState() {
-		Scanner input = new Scanner(System.in);
-		String state = input.nextLine();
+		String state = Validation.input.nextLine();
 		System.out.println();
 		while (!Validation.isAState(state)) {
 			System.out.print("Please enter a valid two character "
 											 + "state code: ");
-			state = input.nextLine();
+			state = Validation.input.nextLine();
 			System.out.println();
 		}
 		return state;
 	}
 
 	static public boolean getIsPetSitter() {
-		Scanner input = new Scanner(System.in);
-		input.useDelimiter("");
-		char c = input.next().charAt(0);
-		input.nextLine();
+		Validation.input.useDelimiter("");
+		char c = Validation.input.next().charAt(0);
+		Validation.input.nextLine();
 		System.out.println();
 		while (c != 'y' && c != 'n' && c != 'Y' && c != 'N') {
 			System.out.println("Please enter either y or n.");
 			System.out.print("Are you a pet sitter (y/n)? ");
-			c = input.next().charAt(0);
-			input.nextLine();
+			c = Validation.input.next().charAt(0);
+			Validation.input.nextLine();
 			System.out.println();
 		}
+		Validation.input.reset();
 
 		return c == 'y' || c == 'Y' ? true : false;
 	}
 
 	static public boolean getIsPetOwner() {
-		Scanner input = new Scanner(System.in);
-		input.useDelimiter("");
-		char c = input.next().charAt(0);
-		input.nextLine();
+		Validation.input.useDelimiter("");
+		char c = Validation.input.next().charAt(0);
+		Validation.input.nextLine();
 		System.out.println();
 		while (c != 'y' && c != 'n' && c != 'Y' && c != 'N') {
 			System.out.println("Please enter either y or n.");
 			System.out.print("Are you a pet owner (y/n)? ");
-			c = input.next().charAt(0);
-			input.nextLine();
+			c = Validation.input.next().charAt(0);
+			Validation.input.nextLine();
 			System.out.println();
 		}
+		Validation.input.reset();
 
 		return c == 'y' || c == 'Y' ? true : false;
 	}
