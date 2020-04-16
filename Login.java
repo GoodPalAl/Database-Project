@@ -54,9 +54,9 @@ public class Login {
 		// Attempt to read in the password with obscured input for added
 		// added security
 		if ((cons = System.console()) != null) {
-			System.out.print("***NOTE: For security sake, the console will not"
-											 + " display input characters (input will appear "
-											 + "blank)***\nPassword: ");
+			System.out.println("***NOTE: For security sake, the console will not"
+												 + " display input characters (input will appear "
+												 + "blank)***");
 			System.out.print("Enter password: ");
 			password = String.valueOf(cons.readPassword());
     }
@@ -93,7 +93,33 @@ public class Login {
 		boolean isSitter, isOwner;
 		int matchesSize = 0;
 		char c;
-		do {
+
+		System.out.print("Username: ");
+		username = Validation.getUsername(statement);
+
+		System.out.println("Please enter a password that meets the" +
+											 " following criteria:\n"+Validation.PASSWORD_REQS);
+		password = Validation.getPassword();
+
+		System.out.print("Enter your full name: ");
+		fullname = Validation.getFullname();
+
+		System.out.print("Email: ");
+		email = Validation.getEmail(statement);
+
+		System.out.print("Please enter your city name: ");
+		city = Validation.getCity();
+
+		System.out.print("Enter two character state code (for example "
+										 + "enter Florida as FL): ");
+		state = Validation.getState();
+
+		System.out.print("Are you a pet sitter (y/n)? ");
+		isSitter = Validation.getIsPetSitter();
+
+		System.out.print("Are you a pet owner (y/n)? ");
+		isOwner = Validation.getIsPetOwner();
+		/*do {
 			if (matchesSize > 0)
 				System.out.println("Username already exists\n");
 			System.out.print("Username: ");
@@ -140,7 +166,6 @@ public class Login {
 					String.valueOf(cons.readPassword());
 			} while (!confirmedPassword.equals(password));
 		}
-		// Display as plain text instead
 		else {
 			System.out.print("Password: ");
 			password = input.nextLine();
@@ -219,7 +244,7 @@ public class Login {
 			System.out.println();
 		}
 		isOwner = c == 'y' || c == 'Y' ? true : false;
-		input.reset();
+		input.reset();*/
 		String insertCMD = "INSERT INTO accounts (username, fullname, "
 			+ "password, email, tsjoined, offersdone, "
 			+ "issitter, isowner, city, state)" +
