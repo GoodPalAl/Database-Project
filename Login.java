@@ -1,14 +1,12 @@
 // Login page for petsitting service
-import java.util.Scanner;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.sql.SQLException;
 import java.io.Console;
 
 import util.Validation; // Shared constants and predicate functions
-import profile.Profile;
+import profile.UserProfile;
 
 public class Login {
 	/* ASCII art generated thanks to wonderful text->ASCII art tool from
@@ -41,10 +39,10 @@ public class Login {
 		"Welcome to petsitting_services.com!\n\n",
 		PROMPT = "Enter 'l' to login, 'c' to create account, or 'q' to quit.";
 
-	public static boolean login(Scanner input) {
+	public static boolean login() {
 		String username, password;
 		System.out.print("Enter username: ");
-		username = input.nextLine();
+		username = Validation.input.nextLine();
 		System.out.println();
 		Console cons;
 		// Attempt to read in the password with obscured input for added
@@ -58,7 +56,7 @@ public class Login {
     }
     else {
 			System.out.print("Enter password: ");
-			password = input.nextLine();
+			password = Validation.input.nextLine();
 			System.out.println();
 		}
 		String query
@@ -84,7 +82,7 @@ public class Login {
 		return false;
 	}
 
-	public static void createAccount(Scanner input) {
+	public static void createAccount() {
 		String username, password, fullname, email, city, state, query;
 		boolean isSitter, isOwner;
 		int matchesSize = 0;
@@ -144,7 +142,6 @@ public class Login {
          System.exit(-1);
       }
       try {
-				Scanner input = new Scanner(System.in);
 				// open connection to database
 				Connection connection
 					= DriverManager.getConnection(//"jdbc:postgresql://dbhost:port/dbname", "user", "dbpass");
@@ -156,12 +153,12 @@ public class Login {
 				System.out.println(BANNER + GREETING);
 				while(true) {
 					System.out.println(PROMPT);
-					char response = input.nextLine().charAt(0);
-					if (response == 'l' && login(input))
+					char response = Validation.input.nextLine().charAt(0);
+					if (response == 'l' && login())
 						break;
 
 					else if (response == 'c') {
-						createAccount(input);
+						createAccount();
 						break;
 					}
 
@@ -174,10 +171,11 @@ public class Login {
 				// Figure out which page/view to switch the user to now that
 				// their credentials have been created or validated in the db.
 				System.out.println(Validation.OPTIONS);
-				char response = input.nextLine().toLowerCase().charAt(0);
+				char response
+					= Validation.input.nextLine().toLowerCase().charAt(0);
 				while(true) {
 					if (response == 'p')
-						response = Profile.goToProfile();
+						response = UserProfile.goToUserProfile();
 					else if (response == 's')
 						;//response = goToSearch();
 					else if (response == 'c')
@@ -188,7 +186,7 @@ public class Login {
 					}
 					else {
 						System.out.println(Validation.OPTIONS);
-						response = input.nextLine().charAt(0);
+						response = Validation.input.nextLine().charAt(0);
 					}
 				}
       }
