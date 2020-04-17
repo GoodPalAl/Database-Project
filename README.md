@@ -49,3 +49,5 @@ If running the precompiled binary (.jar), move into the bin folder and run the f
 ```
 java -jar Petsitting_Services.jar
 ``` 
+
+[![Built with Spacemacs](https://cdn.rawgit.com/syl20bnr/spacemacs/442d025779da2f62fc86c2082703697714db6514/assets/spacemacs-badge.svg)](http://spacemacs.org)
