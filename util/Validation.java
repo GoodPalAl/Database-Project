@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.io.Console;
 
 public class Validation {
@@ -15,13 +16,13 @@ public class Validation {
 	public static String curUsername;
 	public static Statement statement;
 
-	public static Scanner input = new Scanner(System.in);
+	final public static Scanner input = new Scanner(System.in);
 
 	final public static SimpleDateFormat FORMAT =
 		new SimpleDateFormat("MMMMM dd yyyy");
 
 	final public static int MAX_LENGTH = 50, PASS_LEN_MIN = 8,
-		                      PASS_LEN_MAX = 15;
+		                      PASS_LEN_MAX = 15, DESC_MAX_LENGTH = 500;
 	final public static String
 		OPTIONS = "Enter 'p' to view/edit your profile, 's' to search pet" +
 		" sitting posts, 'c' to create a pet sitting offer, or 'q'" +
@@ -40,6 +41,25 @@ public class Validation {
 	     "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY",
 	     "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX",
 			 "UT", "VT", "VA", "WA", "WV", "WI", "WY"};
+
+	// Simple method to wrap all JDBC SQL update commands inside a generic
+	// try-catch block
+	public static void updateSQL(String updateCMD) {
+		try {Validation.statement.executeUpdate(updateCMD);}
+		catch (java.sql.SQLException e) {
+			System.err.println(e);
+			System.exit(-1);
+		}
+	}
+
+	public static ResultSet querySQL(String query) {
+		try {return Validation.statement.executeQuery(query);}
+		catch (java.sql.SQLException e) {
+			System.err.println(e);
+			System.exit(-1);
+		}
+		return null;
+	}
 
 	// Returns number of record matches for a particular query.
 	public static int numMatches(String query) {
@@ -301,5 +321,258 @@ public class Validation {
 		Validation.input.reset();
 
 		return c == 'y' || c == 'Y' ? true : false;
+	}
+
+	static public String getPetName()
+	{
+		String petname = Validation.input.nextLine();
+		System.out.println();
+		while (petname.length() == 0 ||
+					 petname.length() > Validation.MAX_LENGTH) {
+			System.out.println("Pet names must be " + Validation.MAX_LENGTH +
+												 " characters or fewer");
+			System.out.print("Enter your pet's name: ");
+			petname = Validation.input.nextLine();
+			System.out.println();
+		}
+
+		return petname;
+	}
+
+	static public String getPetType()
+	{
+		String pettype = Validation.input.nextLine();
+		System.out.println();
+		while (pettype.length() == 0 ||
+					 pettype.length() > Validation.MAX_LENGTH) {
+			System.out.println("Your input must be " + Validation.MAX_LENGTH +
+												 " characters or fewer");
+			System.out.print("Enter what kind of animal your pet is: ");
+			pettype = Validation.input.nextLine();
+			System.out.println();
+		}
+		
+		return pettype;
+	}
+
+	// TO DO : emma said she had a plan for this one
+	static public int getPetAge()
+	{
+		int age = Integer.parseInt(input.nextLine());
+		System.out.println();
+		while (age >= 0 && age <= 100) {
+			System.out.println("Please enter a valid age. Note: if your pet is less than a year old, type 0.");
+			System.out.print("Enter your pet's age (in years): ");
+			age = Integer.parseInt(Validation.input.nextLine());
+			System.out.println();
+		}
+		return age;
+	}
+
+	static public int getOfferID()
+	{
+		try
+		{
+			String query = "SELECT offerID FROM offers ORDER BY offerID DESC LIMIT 1;";
+
+			if (numMatches(query, "offers") == 1)
+			{
+				ResultSet rs = querySQL(query);
+				return rs.getInt("offerID") + 1;
+			}
+			// First offer entry in table
+			if (numMatches(query, "offers") == 0)
+			{	
+				return 1;
+			}
+		}
+		catch (java.sql.SQLException e)
+		{
+			System.err.println(e);
+			System.exit(-1);
+		}
+
+		// Leave me alone javac
+		return -1;
+	}
+	// Prompts user for a name and returns the pet's id
+	public static int getSitting()
+	{
+		try
+		{
+			String petname = Validation.input.nextLine();
+			System.out.println();
+
+			String query = "SELECT petID from pets WHERE petname = '"+
+							petname +"' AND owner = '" + 
+							Validation.curUsername +"';";
+
+			while (numMatches(query, "pets") != 1) {
+				System.out.println("Couldn't find a pet on your account " +
+									"with the name " + petname + ".");
+				System.out.print("Please enter your pet's name: ");
+				petname = Validation.input.nextLine();
+				System.out.println();
+				query = "SELECT petID from pets WHERE petname = '"+
+							petname +"' AND owner = '" + 
+							Validation.curUsername +"';";
+			}
+
+			ResultSet rs = querySQL(query);
+			return rs.getInt("petID");
+		}
+		catch (java.sql.SQLException e)
+		{
+			System.err.println(e);
+			System.exit(-1);
+		}
+
+		return -1;
+	}
+	public static String getDescription()
+	{
+		String desc;
+		char c = 'a';
+		// Since a description can be really long,
+		//	the user should verify it if is correct.
+		do {
+			// Reprint prompt if this is a reiteration
+			if (c != 'y' || c != 'Y')
+				System.out.println("Enter your post's additional information: ");
+
+			desc = Validation.input.nextLine();
+			System.out.println();
+
+			while (desc.length() > Validation.DESC_MAX_LENGTH) {
+				System.out.println("Your description exceeds the " + Validation.DESC_MAX_LENGTH +
+									" limit. Length: " + desc.length());
+				System.out.println("Please enter your post's additional information: ");
+				desc = Validation.input.nextLine();
+				System.out.println();
+			}
+
+			if (desc.length() == 0)
+				System.out.println("Your post will have no description, is that okay? (Type 'y' to confirm.)");
+			else
+			{
+				System.out.println("Verify that your post's description is correct. (Type 'y' to confirm.)");
+				System.out.println(desc);
+			}
+			c = Validation.input.next().charAt(0);
+		} while (c != 'y' || c != 'Y');
+
+		return desc;
+	}
+	public static double getPayment()
+	{
+		// Rounding input to 2 decimals
+		double payment = Math.round(Double.parseDouble(Validation.input.nextLine()) * 100) / 100;
+		System.out.println();
+
+		while (payment < 0 || payment >= 10000)
+		{
+			System.out.println("Invalid value entered.");
+			System.out.println("Enter your post's payment amount: ");
+			payment = Math.round(Double.parseDouble(Validation.input.nextLine()) * 100) / 100;
+			System.out.println();
+		}
+
+		return payment;
+	}
+	// TO DO
+	public static String getOfferStartTime()
+	{
+		String str = null;
+		boolean badTS = false;
+		Date time = new Date();
+		SimpleDateFormat time_format = new SimpleDateFormat("hh:mm aa");
+		do
+		{
+			try
+			{			
+				System.out.println("Start Time (hh:mm am/pm) (if none, hit enter): ");
+				str = Validation.input.nextLine();
+				System.out.println();
+				if (str.length() == 0)
+					str = "3:00 pm";
+				
+				time = time_format.parse(str);
+			}
+			catch (Exception e) { badTS = true; }
+		} while (badTS);
+		
+		return str;
+	}
+	// TO DO
+	public static String getOfferStartDate()
+	{
+		String str = null;
+		boolean badTS = false;
+		Date date = new Date();
+		SimpleDateFormat date_format = new SimpleDateFormat("yyyy-MM-dd");
+		do
+		{
+			try
+			{			
+				System.out.println("Start Date (yyyy-MM-dd): ");
+				str = Validation.input.nextLine();
+				System.out.println();
+				if (str.length() == 0)
+					throw new Exception();
+				
+				date = date_format.parse(str);
+			}
+			catch (Exception e) { badTS = true; }
+		} while (badTS);
+		
+		return str;
+	}
+	// TO DO
+	public static String getOfferEndTime()
+	{
+		String str = null;
+		boolean badTS = false;
+		Date time = new Date();
+		SimpleDateFormat time_format = new SimpleDateFormat("hh:mm aa");
+		do
+		{
+			try
+			{			
+				System.out.println("End Time (hh:mm am/pm) (if none, hit enter): ");
+				str = Validation.input.nextLine();
+				System.out.println();
+				if (str.length() == 0)
+					str = "3:00 pm";
+				
+				time = time_format.parse(str);
+			}
+			catch (Exception e) { badTS = true; }
+		} while (badTS);
+		
+		return str;
+	}
+	// TO DO
+	public static String getOfferEndDate()
+	{
+		String str = null;
+		boolean badTS = false;
+		Date date = new Date();
+		SimpleDateFormat date_format = new SimpleDateFormat("yyyy-MM-dd");
+		do
+		{
+			try
+			{			
+				System.out.println("Start Date (yyyy-MM-dd): ");
+				str = Validation.input.nextLine();
+				System.out.println();
+				if (str.length() == 0)
+					throw new Exception();
+				
+				date = date_format.parse(str);
+			}
+			catch (Exception e) { badTS = true; }
+		} while (badTS);
+		
+		return str;
 	}
 }

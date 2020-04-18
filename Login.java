@@ -110,6 +110,11 @@ public class Login {
 
 		System.out.print("Are you a pet sitter (y/n)? ");
 		isSitter = Validation.getIsPetSitter();
+		if (isSitter) {
+			// TODO prompt for pet info
+			System.out.println("Would you like to add a profile for your pet(s) (y/n)? ");
+			// PetProfile.getPetInfo();
+		}
 
 		System.out.print("Are you a pet owner (y/n)? ");
 		isOwner = Validation.getIsPetOwner();
@@ -123,13 +128,7 @@ public class Login {
 			"', '" + isOwner + "', '" + city + "', '" +
 			state + "');";
 
-		try {
-			Validation.statement.executeUpdate(insertCMD);
-		}
-		catch (java.sql.SQLException e) {
-			System.err.println(e);
-			System.exit(-1);
-		}
+		Validation.updateSQL(insertCMD);
 		Validation.curUsername = username;
 	}
 
@@ -151,17 +150,18 @@ public class Login {
 					= connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
 																			 ResultSet.CONCUR_UPDATABLE);
 				System.out.println(BANNER + GREETING);
-				while(true) {
+				boolean validResponse = false;
+				while(!validResponse) {
 					System.out.println(PROMPT);
 					char response = Validation.input.nextLine().charAt(0);
 					if (response == 'l' && login())
-						break;
+						validResponse = true;
 
 					else if (response == 'c') {
 						createAccount();
-						break;
+						validResponse = true;
 					}
-
+					// Exit program
 					else if (response == 'q') {
 						connection.close();
 						System.exit(0);
@@ -173,22 +173,19 @@ public class Login {
 				System.out.println(Validation.OPTIONS);
 				char response
 					= Validation.input.nextLine().toLowerCase().charAt(0);
-				while(true) {
+				while(response != 'q') {
 					if (response == 'p')
 						response = UserProfile.goToUserProfile();
 					else if (response == 's')
 						;//response = goToSearch();
 					else if (response == 'c')
 						;//response = goToCreateOffer();
-					else if (response == 'q') {
-						connection.close();
-						System.exit(0);
-					}
 					else {
 						System.out.println(Validation.OPTIONS);
 						response = Validation.input.nextLine().charAt(0);
 					}
 				}
+				connection.close();
       }
       catch (java.sql.SQLException e) {
 				System.err.println(e);
