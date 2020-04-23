@@ -112,7 +112,8 @@ public class Login {
 		isSitter = Validation.getIsPetSitter();
 		if (isSitter) {
 			// TODO prompt for pet info
-			System.out.println("Would you like to add a profile for your pet(s) (y/n)? ");
+			System.out.println("Would you like to add a profile for your pet(s)"+
+												 "(y/n)? ");
 			// PetProfile.getPetInfo();
 		}
 
