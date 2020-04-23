@@ -36,8 +36,8 @@ public class PetProfile
 
 		String insertCMD = "INSERT INTO pets (pettype, petname, " +
 			"birthyear, owner)" +
-			"VALUES(" + petType + "', '" + petType + "', age_to_birth_year(" +
-			age + "), '" + Validation.curUsername + "');";
+			"VALUES(" + petType + "', '" + petType + "', age_to_birth_year("
+			+ age + "), '" + Validation.curUsername + "');";
 		Validation.updateSQL(insertCMD);
 
 	}
@@ -53,9 +53,7 @@ public class PetProfile
 			if (rs.next()) {
 				System.out.println("petname: " + rs.getString("petname"));
 				System.out.println("pettype: " + rs.getString("pettype"));
-				System.out.println("age: "
-													 + Validation.getPetAge(rs.getInt("age"))
-													 + " years");
+				System.out.println("age: " + rs.getInt("age") + " years");
 				System.out.println();
 			}
 			else
