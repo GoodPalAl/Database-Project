@@ -14,56 +14,68 @@ import profile.UserProfile;
 
 public class PetProfile
 {
-    public static void editPetInfo()
-    {
-			;
-    }
-    public static void addPetInfo()
-    {
-			String petType, petName;
-			int age;
 
-			System.out.println("Please enter your pet's name: ");
-			petName = Validation.getPetName();
+	// ADDED 04/22/20
+	final public static String []arr
+		= {"Dogs", "Cats", "Rabbits", "Birds", "Fish", "Reptiles", "Rodents",
+	     "Amphibians", "Bugs", "Other"};
 
-			System.out.println("Enter what kind of animal your pet is: ");
-			petType = Validation.getPetType();
+	public static void printPetTypes() {
+		for (int i = 0; i < arr.length; ++i)
+			System.out.println(i + ") " + arr[i]);
+	}
 
-			System.out.println("How old is your pet? (in years) ");
-			age = Validation.getAge();
 
-			String insertCMD = "INSERT INTO pets (petid, pettype, petname, " +
-				"birthyear, owner)" +
-				"VALUES(" + petID + ", '" + petName +
-				"', '" + petType + "', " + birthYear +
-				", '" + Validation.curUsername + "');";
-			Validation.updateSQL(genUpdateSQL(insertCMD));
+	public static void editPetInfo()
+	{
+		;
+	}
+	public static void addPetInfo()
+	{
+		String petType, petName;
+		int age;
 
-    }
-    public static void displayPetInfo()
-    {
-			try {
+		System.out.print("Please enter your pet's name: ");
+		petName = Validation.getPetName();
+
+		printPetTypes();
+		System.out.print("Enter what kind of animal your pet is: ");
+		petType = Validation.getPetType();
+
+		System.out.print("How old is your pet? (in years) ");
+		age = Validation.getPetAge();
+
+		String insertCMD = "INSERT INTO pets (pettype, petname, " +
+			"birthyear, owner)" +
+			"VALUES(" petType + "', '" + petType + "', age_to_birth_year(" + age
+			+ "), '" + Validation.curUsername + "');";
+		Validation.updateSQL(insertCMD);
+
+	}
+	public static void displayPetInfo()
+	{
+		try {
 			ResultSet rs
 				= Validation.querySQL("SELECT " +
-															"petname, pettype, birthyear, owner " +
+															"petname, pettype, " +
+															"birth_year_to_age(birthyear) AS age " +
 															"FROM pets WHERE owner = '"
 															+ Validation.curUsername + "';");
 			if (rs.next()) {
 				System.out.println("petname: " + rs.getString("petname"));
 				System.out.println("pettype: " + rs.getString("pettype"));
 				System.out.println("age: "
-													 + Validation.getPetAge(rs.getInt("birthyear"))
+													 + Validation.getPetAge(rs.getInt("age"))
 													 + " years");
-				//System.out.println("owner: " + rs.getString("owner"));
 				System.out.println();
 			}
 			else
 				System.err.println("Internal error finding entry matching "
 													 + "owner.");
-			}
-			catch (java.sql.SQLException e) {
-				System.err.println(e);
-				System.exit(-1);
-			}
 		}
+		catch (java.sql.SQLException e) {
+			System.err.println(e);
+			System.exit(-1);
+		}
+	}
 }
