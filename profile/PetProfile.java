@@ -15,17 +15,6 @@ import profile.UserProfile;
 public class PetProfile
 {
 
-	// ADDED 04/22/20
-	final public static String []arr
-		= {"Dogs", "Cats", "Rabbits", "Birds", "Fish", "Reptiles", "Rodents",
-	     "Amphibians", "Bugs", "Other"};
-
-	public static void printPetTypes() {
-		for (int i = 0; i < arr.length; ++i)
-			System.out.println(i + ") " + arr[i]);
-	}
-
-
 	public static void editPetInfo()
 	{
 		;
@@ -38,7 +27,7 @@ public class PetProfile
 		System.out.print("Please enter your pet's name: ");
 		petName = Validation.getPetName();
 
-		printPetTypes();
+		Validation.printPetTypes();
 		System.out.print("Enter what kind of animal your pet is: ");
 		petType = Validation.getPetType();
 
@@ -47,8 +36,8 @@ public class PetProfile
 
 		String insertCMD = "INSERT INTO pets (pettype, petname, " +
 			"birthyear, owner)" +
-			"VALUES(" petType + "', '" + petType + "', age_to_birth_year(" + age
-			+ "), '" + Validation.curUsername + "');";
+			"VALUES(" + petType + "', '" + petType + "', age_to_birth_year(" +
+			age + "), '" + Validation.curUsername + "');";
 		Validation.updateSQL(insertCMD);
 
 	}
