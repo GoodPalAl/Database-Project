@@ -42,6 +42,17 @@ public class Validation {
 	     "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX",
 			 "UT", "VT", "VA", "WA", "WV", "WI", "WY"};
 
+	// ADDED 04/22/20
+	final public static String []petTypes
+		= {"Dogs", "Cats", "Rabbits", "Birds", "Fish", "Reptiles", "Rodents",
+	     "Amphibians", "Bugs", "Other"};
+
+	public static void printPetTypes() {
+		for (int i = 0; i < petTypes.length; ++i)
+			System.out.println(i + ") " + petTypes[i]);
+	}
+
+
 	// Simple method to wrap all JDBC SQL update commands inside a generic
 	// try-catch block
 	public static void updateSQL(String updateCMD) {
@@ -341,17 +352,17 @@ public class Validation {
 
 	static public String getPetType()
 	{
-		int pettypeNum = Validation.parseInt(input.nextLine());
+		int pettypeNum = Integer.parseInt(input.nextLine());
 		System.out.println();
-		while (pettypeNum < 0 || pettypeNum >= PetProfile.arr.length) {
+		while (pettypeNum < 0 || pettypeNum >= petTypes.length) {
 			System.out.println("Please enter a valid number.");
-			PetProfile.printPetTypes();
+			printPetTypes();
 			System.out.print("Enter what kind of animal your pet is: ");
-			pettype = Validation.parseInt(input.nextLine());
+			pettypeNum = Integer.parseInt(input.nextLine());
 			System.out.println();
 		}
 
-		return pettype;
+		return petTypes[pettypeNum];
 	}
 
 	// TO DO : emma said she had a plan for this one
