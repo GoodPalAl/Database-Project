@@ -341,17 +341,16 @@ public class Validation {
 
 	static public String getPetType()
 	{
-		String pettype = Validation.input.nextLine();
+		int pettypeNum = Validation.parseInt(input.nextLine());
 		System.out.println();
-		while (pettype.length() == 0 ||
-					 pettype.length() > Validation.MAX_LENGTH) {
-			System.out.println("Your input must be " + Validation.MAX_LENGTH +
-												 " characters or fewer");
+		while (pettypeNum < 0 || pettypeNum >= PetProfile.arr.length) {
+			System.out.println("Please enter a valid number.");
+			PetProfile.printPetTypes();
 			System.out.print("Enter what kind of animal your pet is: ");
-			pettype = Validation.input.nextLine();
+			pettype = Validation.parseInt(input.nextLine());
 			System.out.println();
 		}
-		
+
 		return pettype;
 	}
 
