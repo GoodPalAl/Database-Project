@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -30,13 +31,16 @@ public class Search {
 
     // Search Page
     public static char goToSearch() {
+        final int DESC_PREVIEW_LEN = 50;
+
         ArrayList<String> includedTypes = filterPets();
 
         System.out.println("Searching for posts in your city...");
+        System.out.println();
         int limit = 5;
         int offset = 0;
         String query = 
-            "SELECT pettype, payment, tsstart, tsend, description "+ 
+            "SELECT owner, pettype, payment, tsstart, tsend, description "+ 
             "FROM offers, pets, accounts "+
             "WHERE sitting = petid AND owner = username " +
             // true = include all pets, false = only pets in "includedTypes"
@@ -49,8 +53,44 @@ public class Search {
             "ORDER BY tsposted DESC LIMIT " + limit + " OFFSET " + offset + ";"; 
 
         // Execute query
-        // Print result set to user
-        // 
+        try{
+            ResultSet rs = Validation.statement.executeQuery(query);
+            for(int i = 1; rs.next(); ++i){
+                System.out.println("Offer #" + i);
+                System.out.println("    Posted By: " + rs.getString("owner"));
+                System.out.println("    Pet Type: " + rs.getString("pettype"));
+                System.out.print("    Schedule: "  + 
+                                    Validation.TS_FORMAT.format(new Timestamp
+                                        (rs.getTimestamp("tsstart").getTime())));
+                System.out.println(" to " +  
+                                    Validation.TS_FORMAT.format(new Timestamp
+                                        (rs.getTimestamp("tsend").getTime())));
+                Double pay = rs.getDouble("payment");
+                if (pay != null){
+                    System.out.print("    Payment: $");
+                    System.out.printf("%.02f", pay);
+                    System.out.println();
+                }
+                String desc = rs.getString("description");
+                if (desc.length() > DESC_PREVIEW_LEN)
+                    System.out.println("    Description (preview):\n        \"" + 
+                        desc.substring(0, DESC_PREVIEW_LEN) + "\"...");
+                else if (desc.length() > 0 && desc.length() < DESC_PREVIEW_LEN)
+                    System.out.println("    Description:\n        \"" + desc + "\"");
+                else { 
+                    // don't print description
+                }
+                System.out.println();
+            }
+            rs.close();
+        }
+        catch (java.sql.SQLException e) {
+            System.err.println(e);
+            System.exit(-1);
+        }
+        
+        // n = next 5, p = past 5, q = quit, # = to select offer
+        // if # selected, show full detail of post, give option to accept ONLY IF they are a sitter
 
 		char c = 'z';
 		// Promp user if they would like to navigate to another page
@@ -106,11 +146,6 @@ public class Search {
                 validOption = false;
             }
         } while(!validOption);
-        //*
-        for (int i = 0; i < include.size(); ++i)
-            System.out.print(include.get(i) + ", ");
-        System.out.println();
-        //*/
 
         return include;
     }

@@ -125,7 +125,7 @@ public class Offer
 				System.out.println("Time posted: " + 
 									Validation.TS_FORMAT.format(new Timestamp
 										(rs.getTimestamp("tsposted").getTime())));
-				System.out.print("Scheduled from " + 
+				System.out.print("Schedule: " + 
 									Validation.TS_FORMAT.format(new Timestamp
 										(rs.getTimestamp("tsstart").getTime())));
 				System.out.println(" to " +  
