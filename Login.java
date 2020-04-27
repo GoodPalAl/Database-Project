@@ -151,14 +151,15 @@ public class Login {
 			// open connection to database
 			Connection connection
 				= DriverManager.getConnection(//"jdbc:postgresql://dbhost:port/dbname", "user", "dbpass");
-												"jdbc:postgresql://127.0.0.1:5432/postgres", "postgres", "@mmy0306SQL");
+												"jdbc:postgresql://127.0.0.1:5432/final_project",
+												"emma", "pass");
 
 			Validation.statement
 				= connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
 												ResultSet.CONCUR_UPDATABLE);
 			System.out.println(BANNER + GREETING);
 			boolean validResponse = false;
-			
+
 			while(!validResponse) {
 				System.out.println(PROMPT);
 				String str = Validation.input.nextLine();
@@ -179,7 +180,7 @@ public class Login {
 						System.exit(0);
 					}
 				}
-				else 
+				else
 					validResponse = false;
 			}
 
@@ -207,7 +208,7 @@ public class Login {
 						response = Character.toLowerCase(str.charAt(0));
 						System.out.println();
 					}
-					else 
+					else
 						response = 'z';
 				}
 			}

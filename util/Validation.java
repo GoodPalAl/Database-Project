@@ -212,6 +212,7 @@ public class Validation {
 			}
 			query = "SELECT username FROM accounts WHERE username = '" +
 				username + "';";
+			System.out.println(query);
 		}	while (Validation.numMatches(query) > 0);
 		System.out.println();
 		return username;
@@ -356,7 +357,7 @@ public class Validation {
 		while (petname.length() == 0 ||
 					 petname.length() > Validation.MAX_LENGTH) {
 			System.out.println("Pet names must be " + Validation.MAX_LENGTH +
-									" characters or fewer");
+												 " characters or fewer");
 			System.out.print("Enter your pet's name: ");
 			petname = Validation.input.nextLine();
 			System.out.println();
@@ -405,9 +406,13 @@ public class Validation {
 		boolean ret = false;
 		try{
 			ResultSet rs = Validation.statement.executeQuery(
-				"SELECT COUNT(*) as count FROM pets WHERE petName = " + 
-				petName + " AND owner = '" + curUsername + "';");
-			ret = (rs.getInt("count") == 1 ? true : false);
+				"SELECT COUNT(*) as count FROM pets WHERE petName = '" + 
+				petName + "' AND owner = '" + curUsername + "';");
+			while (rs.next()) {
+				int i = rs.getInt("count");
+				System.out.println(i);
+				ret = (i == 1 ? true : false);
+			}
 			rs.close();
 		}
 		catch (java.sql.SQLException e) {
@@ -527,21 +532,25 @@ public class Validation {
 			System.out.println();
 
 			while (desc.length() > Validation.DESC_MAX_LENGTH) {
-				System.out.println("Your description exceeds the " + Validation.DESC_MAX_LENGTH +
-									" limit. Length: " + desc.length());
-				System.out.println("Please enter your post's additional information: ");
+				System.out.println("Your description exceeds the " +
+													 Validation.DESC_MAX_LENGTH +
+													 " limit. Length: " + desc.length());
+				System.out.println("Please enter your post's additional " +
+													 "information: ");
 				desc = Validation.input.nextLine();
 				System.out.println();
 			}
 
 			if (desc.length() == 0)
-				System.out.println("Your post will have no description, is that okay? (Type 'y' to confirm.)");
+				System.out.println("Your post will have no description, is that" +
+													 " okay? (Type 'y' to confirm.)");
 			else
 			{
-				System.out.println("Verify that your post's description is correct. (Type 'y' to confirm.)");
+				System.out.println("Verify that your post's description is " +
+													 "correct. (Type 'y' to confirm.)");
 				System.out.println("\"" + desc +"\"");
 			}
-			c = Character.toLowerCase(Validation.input.next().charAt(0));
+			c = Character.toLowerCase(Validation.input.nextLine().charAt(0));
 		} while (c != 'y');
 
 		return desc;
@@ -549,14 +558,16 @@ public class Validation {
 	public static double getPayment()
 	{
 		// Rounding input to 2 decimals
-		double payment = Math.round(Double.parseDouble(Validation.input.nextLine()) * 100) / 100;
+		double payment = Math
+			.round(Double.parseDouble(Validation.input.nextLine()) * 100) / 100;
 		System.out.println();
 
 		while (payment < 0 || payment >= 10000)
 		{
 			System.out.println("Invalid value entered.");
 			System.out.print("Enter your post's payment amount: $");
-			payment = Math.round(Double.parseDouble(Validation.input.nextLine()) * 100) / 100;
+			payment = Math
+				.round(Double.parseDouble(Validation.input.nextLine()) * 100)/100;
 			System.out.println();
 		}
 

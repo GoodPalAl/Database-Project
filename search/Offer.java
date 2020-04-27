@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 
 import util.Validation;
 //import profile.UserProfile;
@@ -73,7 +74,7 @@ public class Offer
 	//Editted by Sydney
     public static void createOffer()
     {
-		String desc;
+		StringBuilder desc;
 		Timestamp start, end;
         double payment; 
         int sitting;
@@ -88,18 +89,26 @@ public class Offer
         System.out.print("Enter payment amount: $");
         payment = Validation.getPayment();
 
-        System.out.println("Please provide any additional information " + 
-                                "regarding this post. Limit of " + 
-                                Validation.DESC_MAX_LENGTH + " characters. " +
-                                "Press enter when done.\n");
-        desc = Validation.getDescription();
+        System.out.println("Please provide any additional information " +
+                           "regarding this post. Limit of " +
+													 Validation.DESC_MAX_LENGTH + " characters. " +
+													 "Press enter when done.\n");
+        desc = new StringBuilder(Validation.getDescription());
+
+				// Insert single quote for each existing quote to escape single
+				// quotes in text
+				for (int i = 0, strLen = desc.toString().length(); i < strLen; ++i)
+					if (desc.charAt(i) == '\'') {
+						++strLen;
+						desc.insert(++i, '\'');
+					}
 
         String insertCMD = "INSERT INTO offers (description, " +
                                 "tsposted, tsstart, tsend, payment, " +
                                 "sitting) " +
-								"VALUES('"+ desc + "', NOW() , " + 
+					      "VALUES('"+ desc.toString() + "', NOW() , " +
 								"TIMESTAMP '" + start + "', " +
-								"TIMESTAMP '" + end +  "', " + 
+								"TIMESTAMP '" + end +  "', " +
 								payment + ", " + sitting + ");";
 
 		Validation.updateSQL(insertCMD);
@@ -109,37 +118,79 @@ public class Offer
 		System.out.println();
 	}
 
-	//Editted by Sydney
-    public static void displayOfferInfo(Integer offerID) {
-		String query = 
-			"SELECT description, tsposted, tsstart, tsend, payment, petname " +
-			"FROM offers, pets WHERE sitting = petID " +
-			"AND owner = '" + Validation.curUsername + "'" + 
-			(offerID == null ? "" : " AND petID = " + offerID + "") +
-			"ORDER BY tsposted;";
-        try
-        {
-			ResultSet rs = Validation.statement.executeQuery(query);
-			while (rs.next()) {
-				System.out.println("Pet Name: " + rs.getString("petName"));
-				System.out.println("Time posted: " + 
-									Validation.TS_FORMAT.format(new Timestamp
-										(rs.getTimestamp("tsposted").getTime())));
-				System.out.print("Schedule: " + 
-									Validation.TS_FORMAT.format(new Timestamp
-										(rs.getTimestamp("tsstart").getTime())));
-				System.out.println(" to " +  
-									Validation.TS_FORMAT.format(new Timestamp
-										(rs.getTimestamp("tsend").getTime())));
-				System.out.println("Payment: $" + rs.getDouble("payment"));
-				System.out.println("Description: \"" + rs.getString("description") + "\"");
-				System.out.println();
+	public static void displayOfferInfo(Integer petID) {
+	String query =
+		"SELECT description, tsposted, tsstart, tsend, payment, petname " +
+		"FROM offers, pets WHERE sitting = petID " +
+		"AND owner = username " +
+		(petID == null ? "" : " AND petID = " + petID + "") +
+		"ORDER BY tsposted;";
+		try
+			{
+				ResultSet rs = Validation.statement.executeQuery(query);
+				while (rs.next()) {
+					System.out.println("Pet Name: " + rs.getString("petName"));
+					System.out.println("Time posted: " + 
+														 Validation.TS_FORMAT.format(new Timestamp
+																												 (rs.getTimestamp("tsposted").getTime())));
+					System.out.print("Schedule: " + 
+													 Validation.TS_FORMAT.format(new Timestamp
+																											 (rs.getTimestamp("tsstart").getTime())));
+					System.out.println(" to " +  
+														 Validation.TS_FORMAT.format(new Timestamp
+																												 (rs.getTimestamp("tsend").getTime())));
+					System.out.println("Payment: $" + rs.getDouble("payment"));
+					System.out.println("Description: \"" + rs.getString("description") + "\"");
+					System.out.println();
+				}
+				rs.close();
 			}
-			rs.close();
-        }
 		catch (java.sql.SQLException e) {
 			System.err.println(e);
 			System.exit(-1);
 		}
-    }
+	}
+
+
+	//Editted by Sydney
+	public static void displayOfferInfo(int offset,
+																			ArrayList<String> includedTypes) {
+			String query = "SELECT description, tsposted, tsstart, tsend, payment, " +
+				"petname FROM offers, pets, accounts " +
+				"WHERE sitting = petid AND owner = username " +
+				(includedTypes.size() ==
+				 Validation.petTypes.length ? "" : "AND ("
+				 + Search.filterQuery(includedTypes) + ") ") +
+				"ORDER BY tsposted DESC LIMIT 1 " +
+				"OFFSET " + offset + ";";
+			try
+        {
+					ResultSet rs = Validation.statement.executeQuery(query);
+					while (rs.next()) {
+						System.out.println("Pet Name: " + rs.getString("petName"));
+						System.out.println("Time posted: " + 
+															 Validation.TS_FORMAT.format(new Timestamp
+																													 (rs.getTimestamp("tsposted").getTime())));
+						System.out.print("Schedule: " + 
+														 Validation.TS_FORMAT.format(new Timestamp
+																												 (rs.getTimestamp("tsstart").getTime())));
+						System.out.println(" to " +  
+															 Validation.TS_FORMAT.format(new Timestamp
+																													 (rs.getTimestamp("tsend").getTime())));
+						Double pay = rs.getDouble("payment");
+						if (pay != null){
+							System.out.print("Payment: $");
+							System.out.printf("%.02f", pay);
+							System.out.println();
+						}
+						System.out.println("Description: \"" + rs.getString("description") + "\"");
+						System.out.println();
+					}
+					rs.close();
+        }
+			catch (java.sql.SQLException e) {
+				System.err.println(e);
+				System.exit(-1);
+			}
+	}
 }

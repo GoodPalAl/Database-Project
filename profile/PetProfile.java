@@ -22,9 +22,9 @@ public class PetProfile
 
 	public static void goToPetProfile()
 	{
-		String PET_OPTIONS =	
+		String PET_OPTIONS =
 			"Enter \n" +
-			"'a' to add a pet to your profile, \n" +	
+			"'a' to add a pet to your profile, \n" +
 			"'u' to update an existing pet's information, \n" +
 			"'d' to delete a pet from your account\n" +
 			"'v' to view your pets' information again, or\n" +
@@ -65,7 +65,7 @@ public class PetProfile
 
 	// Map of characters to the corresponding method to update the associated
 	// pet data
-	final static Map<Character, Method> updatePetField = 
+	final static Map<Character, Method> updatePetField =
 			Collections.unmodifiableMap(new HashMap<Character, Method>() {{
 		try {
 			put('t', PetProfile.class.getMethod("updatePetType"));
@@ -80,17 +80,45 @@ public class PetProfile
 
     public static void editPetInfo()
 	{
+		// Default initialization to invalid option to prevent unitialized
+		// value
+		char c = 'z';
+		boolean badOption = false;
+		// If user has no pets, let them know they certainly can't update them!
+		if(Validation.numMatches("SELECT petid FROM pets WHERE owner = '" +
+														 Validation.curUsername + "';") == 0) {
+			System.out.println("No pets found for account, would you like to " +
+												 "add a pet (y/n)?");
+			do {
+				String y_or_n = Validation.input.nextLine();
+				if (badOption) {
+					System.out.print("Invalid option.\n" +
+													 "Please enter y to add pet or n to return to:" +
+													 " pet account menu: ");
+					y_or_n = Validation.input.nextLine();
+				}
+				if (y_or_n.length() > 0) {
+					badOption = false;
+					c = Character.toLowerCase(y_or_n.charAt(0));
+					System.out.println();
+					if (c == 'y')
+						addPetInfo();
+				}
+				else
+					badOption = true;
+			}	while (badOption);
+			return;
+		}
 		curPetID = Validation.findPetIDFromPetName();
 		displayPetInfo(curPetID);
 		final String PET_EDIT_OPTIONS =		// EDITED: moved "delete pet" option to pet viewing menu
-			"Enter \n" + 
+			"Enter \n" +
 			"'t' for pet type, \n" +
 			"'n' for pet name, \n" +
 			"'a' for age, or\n" +
 			"'q' to cancel editing.";
 
 		char response;
-		boolean badOption = false;
 
 		System.out.println("Please enter which part of your pet's information you " +
 								"would like to update:\n" + PET_EDIT_OPTIONS);
@@ -98,7 +126,7 @@ public class PetProfile
 		System.out.println();
 		do {
 			if (badOption) {
-				System.out.println("Invalid option.\n" + 
+				System.out.println("Invalid option.\n" +
 										"Please enter which " +
 										"part of your pet's information " +
 										"you would like to update:\n" + PET_EDIT_OPTIONS);
@@ -120,7 +148,7 @@ public class PetProfile
 				badOption = true;
 			}
 		} while (badOption);
-	}	
+	}
 
 	// TODO: delete from sql
 	final public static void deletePet()
@@ -135,9 +163,9 @@ public class PetProfile
 	}
 
 	final public static void updatePetName() {
-		System.out.print("Enter what kind of animal your pet is: ");
+		System.out.print("Enter your pet's name: ");
 		String newName = "'" + Validation.getPetName() + "'";
-		Validation.updateSQL(genUpdateSQL("petType", newName, curPetID));
+		Validation.updateSQL(genUpdateSQL("petName", newName, curPetID));
 	}
 
 	final public static void updatePetAge() {
@@ -149,14 +177,14 @@ public class PetProfile
     public static void addPetInfo()
     {
 		String petType, petName;
-		int age; 
+		int age;
 
 		System.out.print("Please enter your pet's name: ");
 		petName = Validation.getPetName();
 		// Check if owner already owns a pet with this name
 		// if so, prompt to update instead.
 
-		if (!Validation.petExists(petName))
+		if (Validation.petExists(petName))
 		{
 			char c;
 			do {
@@ -181,7 +209,8 @@ public class PetProfile
 			Validation.printPetTypes();
 			petType = Validation.getPetType();
 
-			System.out.print("How old is your pet? (in years) ");
+			System.out.print("How old is your pet (in years)? (Enter 0 if your" +
+											 " pet is < a year old) ");
 			age = Validation.getPetAge();
 
 			// FIXME: should PETID be handled on the sql side??
@@ -197,13 +226,15 @@ public class PetProfile
 	// If petID == NULL -> display all pets, otherwise display pet matching petID
 	public static void displayPetInfo(Integer petID) {
 		String query = "SELECT petname, pettype, birth_year_to_age(birthyear) as age " +
-				   "FROM pets WHERE owner = '" + Validation.curUsername + "'" + 
+				   "FROM pets WHERE owner = '" + Validation.curUsername + "'" +
 				   (petID == null ? ";" : " AND petID = " + petID + ";");
-		
+
 		try {
 			ResultSet rs = Validation.statement.executeQuery(query);
-		
+
+			boolean petExists = false;
 			while(rs.next()) {
+				petExists = true;
 				System.out.println("petname: " + rs.getString("petname"));
 				System.out.println("pettype: " + rs.getString("pettype"));
 				int age = rs.getInt("age");
@@ -213,8 +244,10 @@ public class PetProfile
 					System.out.println("age: " + age + " years");
 				System.out.println();
 			}
-			
+
 			rs.close();
+			if (!petExists)
+				System.out.println("No pets associated with account :(");
 		}
 		catch (java.sql.SQLException e) {
 			System.err.println(e);
