@@ -30,7 +30,7 @@ public class PetProfile
 			"Enter \n" +
 			"'a' to add a pet to your profile, \n" +
 			"'u' to update an existing pet's information, \n" +
-			"'d' to delete a pet from your account\n" +
+			//"'d' to delete a pet from your account\n" +
 			"'v' to view your pets' information again, or\n" +
 			"'e' to exit back to your account.";
 
@@ -40,7 +40,7 @@ public class PetProfile
 		char response = 'z';
 		do {
 			System.out.println(PET_OPTIONS);
-			String str = Validation.input.nextLine();
+			String str = Validation.preventSQLInjection(Validation.input.nextLine());
 			System.out.println();
 			if (str.length() > 0)
 			{
@@ -49,8 +49,10 @@ public class PetProfile
 					addPetInfo();
 				else if (response == 'u')
 					editPetInfo();
+				/*
 				else if (response == 'd')
 					deletePet();
+				//*/
 				else if (response == 'v')
 					displayPetInfo(null);
 			}
@@ -94,13 +96,13 @@ public class PetProfile
 			System.out.println("No pets found for account, would you like to " +
 												 "add a pet (y/n)?");
 			do {
-				String y_or_n = Validation.input.nextLine();
+				String y_or_n = Validation.preventSQLInjection(Validation.input.nextLine());
 				System.out.println();
 				if (badOption) {
 					System.out.print("Invalid option.\n" +
 													 "Please enter y to add pet or n to return to:" +
 													 " pet account menu: ");
-					y_or_n = Validation.input.nextLine();
+					y_or_n = Validation.preventSQLInjection(Validation.input.nextLine());
 				}
 				if (y_or_n.length() > 0) {
 					badOption = false;
@@ -127,7 +129,7 @@ public class PetProfile
 
 		System.out.println("Please enter which part of your pet's information you " +
 								"would like to update:\n" + PET_EDIT_OPTIONS);
-		response = Validation.input.nextLine().charAt(0);
+		response = Validation.preventSQLInjection(Validation.input.nextLine()).charAt(0);
 		System.out.println();
 		do {
 			if (badOption) {
@@ -135,7 +137,7 @@ public class PetProfile
 										"Please enter which " +
 										"part of your pet's information " +
 										"you would like to update:\n" + PET_EDIT_OPTIONS);
-				response = Validation.input.nextLine().charAt(0);
+				response = Validation.preventSQLInjection(Validation.input.nextLine()).charAt(0);
 			}
 			if (response == 'q') {
 				break;
@@ -155,11 +157,13 @@ public class PetProfile
 		} while (badOption);
 	}
 
-	// TODO: delete from sql
-	final public static void deletePet()
-	{
-		System.out.println("This feature coming soon!");
-	}
+	/*
+		// TODO: delete from sql
+		final public static void deletePet()
+		{
+			System.out.println("This feature coming soon!");
+		}
+	//*/
 
 	final public static void updatePetType() {
 		System.out.print("Enter what kind of animal your pet is: ");
@@ -196,7 +200,7 @@ public class PetProfile
 				System.out.println("You already own a pet with this name.\n" +
 									"Would you like to update their "+
 									"information instead? (y/n)");
-				String str = Validation.input.nextLine();
+				String str = Validation.preventSQLInjection(Validation.input.nextLine());
 				System.out.println();
 				if (str.length() > 0) {
 					Validation.input.nextLine();

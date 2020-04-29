@@ -48,7 +48,7 @@ public class Login {
 	public static boolean login() {
 		String username, password;
 		System.out.print("Enter username: ");
-		username = Validation.input.nextLine();
+		username = Validation.preventSQLInjection(Validation.input.nextLine());
 		System.out.println();
 		Console cons;
 		// Attempt to read in the password with obscured input for added
@@ -63,7 +63,7 @@ public class Login {
     }
     else {
 			System.out.print("Enter password: ");
-			password = Validation.input.nextLine();
+			password = Validation.preventSQLInjection(Validation.input.nextLine());
 			System.out.println();	// EDIT: Added new line for consistency
 		}
 		String query
@@ -166,7 +166,7 @@ public class Login {
 
 			while(!validResponse) {
 				System.out.println(PROMPT);
-				String str = Validation.input.nextLine();
+				String str = Validation.preventSQLInjection(Validation.input.nextLine());
 				System.out.println();
 				if (str.length() > 0)
 				{
@@ -207,7 +207,7 @@ public class Login {
 							"It seems like your account is not labelled " +
 							"as a pet owner, and therefore, cannot create offers.\n " + 
 							"Would you like to update your account info? (Type y to accept.) ");
-						String in = Validation.input.nextLine();
+						String in = Validation.preventSQLInjection(Validation.input.nextLine());
 						System.out.println();
 						if (in.length() == 1 && Character.toLowerCase(in.charAt(0)) == 'y')
 							UserProfile.editUserProfile();
@@ -217,7 +217,7 @@ public class Login {
 				}
 				else {
 					System.out.println(Validation.OPTIONS);
-					str = Validation.input.nextLine();
+					str = Validation.preventSQLInjection(Validation.input.nextLine());
 					System.out.println();
 					if (str.length() > 0) {
 						response = Character.toLowerCase(str.charAt(0));

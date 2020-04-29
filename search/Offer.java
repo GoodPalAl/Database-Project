@@ -58,7 +58,7 @@ public class Offer
 		// Promp user if they would like to navigate to another page
 		do {
 			System.out.println(Validation.OPTIONS);
-			String str = Validation.input.nextLine();
+			String str = Validation.preventSQLInjection(Validation.input.nextLine());
 			System.out.println();
 			if (str.length() > 0) {
 				c = Character.toLowerCase(str.charAt(0));
@@ -76,7 +76,13 @@ public class Offer
         int sitting;
 
         System.out.print("Which of your pets is this offer for? ");
-        sitting = Validation.getSitting();	// FIXME:
+		sitting = Validation.getSitting();
+		
+		if (Validation.numMatches("SELECT * from offers where sitting = " + sitting + ";") >= 1){
+			System.out.println("There is already an offer regarding this pet!");
+			System.out.println();
+			return;
+		}
         
         System.out.println("When does your pet need to be sat? ");
         start = Validation.getOfferStartDate();
@@ -223,7 +229,7 @@ public class Offer
 		String in;
 		do {
 			System.out.println(OFFER_HISTORY_OPTIONS);
-			in = Validation.input.nextLine();
+			in = Validation.preventSQLInjection(Validation.input.nextLine());
 			System.out.println();
 			if (in.length() == 1){
 				if (Character.toLowerCase(in.charAt(0)) == 'a')
@@ -238,14 +244,15 @@ public class Offer
 
 	public static void displayPendingOffers() {
 		final String PENDING_OFFERS_OPTIONS = 
-		"Enter\n'o' to edit an offer, or \n'e' to exit.";
+		"Enter\n'd' to delete an offer, or \n'e' to exit.";
 
 		String query = 
 			"SELECT * " +
 			"FROM offers, pets, accounts " +
 			"WHERE acceptby IS NULL " +
 			"AND sitting = petid AND owner = username " +
-			"AND owner = '" + Validation.curUsername + "';";
+			"AND owner = '" + Validation.curUsername + "' " + 
+			"ORDER BY tsposted DESC;";
 		
 		try {
 			ArrayList<Integer> acceptedPets = new ArrayList<Integer>();
@@ -280,16 +287,38 @@ public class Offer
 		String in;
 		do {
 			System.out.println(PENDING_OFFERS_OPTIONS);
-			in = Validation.input.nextLine();
+			in = Validation.preventSQLInjection(Validation.input.nextLine());
 			System.out.println();
 			if (in.length() == 1){
-				if (Character.toLowerCase(in.charAt(0)) == 'o') {
-					System.out.println("This feature is coming soon!"); // TODO:
+				if (Character.toLowerCase(in.charAt(0)) == 'd') {
+					//System.out.println("This feature is coming soon!"); // TODO:
+					System.out.print("Enter offer number you would " +
+												"like to delete (type 'c' to cancel): ");
+					int selection = -1;
+					String response = Validation.preventSQLInjection(Validation.input.nextLine());
+					System.out.println();
+					if (response.length() > 0)
+						if ('c' == Character.toLowerCase(response.charAt(0))) {
+							System.out.println("Deletion cancelled.\n");
+							break;
+						}
+					selection = Character.getNumericValue(response.charAt(0));
+					if (selection >= 1) {
+						//editPendingOffer(selection - 1);
+						//System.out.println("This feature is coming soon!");
+						deletePendingOffer(selection - 1);
+						return;
+					}
+					// Invalid offer
+					else {
+						System.out.println("Invalid offer number");
+						continue;
+					}
 				}
 			}
 			else
 				in = "z";
-		}while (Character.toLowerCase(in.charAt(0)) != 'e');
+		} while (Character.toLowerCase(in.charAt(0)) != 'e');
 	}
 
 	public static void displayAcceptedOffers(){
@@ -332,14 +361,14 @@ public class Offer
 			String in;
 			do {
 				System.out.println(ACCEPTED_OFFERS_OPTIONS);
-				in = Validation.input.nextLine();
+				in = Validation.preventSQLInjection(Validation.input.nextLine());
 				System.out.println();
 				if (in.length() == 1){
 					if (Character.toLowerCase(in.charAt(0)) == 'r') {
 						System.out.print("Enter offer number you would " +
 												"like to rate: ");
 						int selection = -1;
-						String response = Validation.input.nextLine();
+						String response = Validation.preventSQLInjection(Validation.input.nextLine());
 						System.out.println();
 						if (response.length() > 0)
 							selection = Character.getNumericValue(response.charAt(0));
@@ -389,7 +418,7 @@ public class Offer
 			rs.close();
 
 			if (acceptedBy.equals("") || acceptedBy.equals(null) || offerid == null){
-				System.out.println("Something's wrong here.");
+				System.out.println("Invalid selection.");
 				return;
 			}
 
@@ -398,7 +427,7 @@ public class Offer
 				System.out.print("On a scale of 1 to 5, how would you rate their " +
 									"service? ");
 				int rating = -1;
-				String response = Validation.input.nextLine();
+				String response = Validation.preventSQLInjection(Validation.input.nextLine());
 				System.out.println();
 				if (response.length() > 0)
 					rating = Character.getNumericValue(response.charAt(0));
@@ -433,4 +462,117 @@ public class Offer
 			System.exit(-1);
 		}
 	}
+
+	public static void deletePendingOffer(int offset){
+		String query = 
+			"SELECT offerid " +
+			"FROM offers, pets, accounts " +
+			"AND sitting = petid " +
+			"AND owner = username " +
+			"AND owner = '" + Validation.curUsername + "' " + 
+			"ORDER BY tsposted DESC LIMIT 1 OFFSET " + offset + ";";
+		try {
+			Integer offerid = null;
+			ResultSet rs = Validation.statement.executeQuery(query);
+			while (rs.next())
+				offerid = rs.getInt("offerid");
+			rs.close();		
+			System.out.println("DELETEING OFFER WITH ID #" + offerid);
+			Validation.statement.execute("DELETE FROM offers WHERE " +
+											"offerid = " + offerid + ";");			
+		}
+		catch (java.sql.SQLException e) {
+			System.err.println(e);
+			System.exit(-1);
+		}
+	}
+
+	/*
+	public static void editPendingOffer(int offset){
+		char c = 'z';
+		boolean badOption = false;
+		String query = 
+			"SELECT offerid, description, tsstart, tsend, payment, petname, petid " +
+			"FROM offers, pets, accounts " +
+			"WHERE acceptby IS NULL " +
+			"AND sitting = petid AND owner = username " +
+			"AND owner = '" + Validation.curUsername + "' " +
+			"ORDER BY tsposted DESC LIMIT 1 OFFSET " + offset + ";";
+
+		if(Validation.numMatches(query) == 0) {
+			System.out.println("Invalid offer");
+			return;
+		}
+		try {
+			final String EDIT_OFFER_OPTIONS = 
+				"Enter\n" + 
+				"'d' for description,\n" + 
+				"'s' for starting date/time,\n" + 
+				"'e' for ending date/time,\n" +
+				"'p' for payment, \n" + 
+				"'n' for changing which pet, or \n" + 
+				"'q' to cancel editing.";
+			
+			ResultSet rs = Validation.statement.executeQuery(query);
+			int offerID = rs.getInt("offerid");
+			displayOfferInfo(offerID);
+			rs.close();
+			String desc, petname;
+			int petID;
+			Timestamp start, end;
+			double payment;
+			
+			while (rs.next()) {
+				acceptedBy = rs.getString("acceptby"); 
+				oldRating = rs.getDouble("rating");
+				offerid = rs.getInt("offerid");
+			}
+			rs.close();
+
+			if (acceptedBy.equals("") || acceptedBy.equals(null) || offerid == null){
+				System.out.println("Invalid selection.");
+				return;
+			}
+
+			boolean validOption;
+			do {
+				System.out.print("On a scale of 1 to 5, how would you rate their " +
+									"service? ");
+				int rating = -1;
+				String response = Validation.preventSQLInjection(Validation.input.nextLine());
+				System.out.println();
+				if (response.length() > 0)
+					rating = Character.getNumericValue(response.charAt(0));
+				if (rating >= 1 && rating <= 5) {
+					validOption = true;
+					// First rating!
+					if (oldRating == 0.0)
+						Validation.updateSQL("UPDATE accounts SET rating = " +  rating +
+											" WHERE username = '" + acceptedBy + 
+											"';");
+					else
+						Validation.updateSQL("UPDATE accounts SET rating = " +
+											"(((rating * offersdone) + " + 
+											rating + ") / (offersdone + 1)) " +
+											"WHERE username = '" + acceptedBy + "';");
+					
+					// Increment # of offers done when rating is being given
+					Validation.updateSQL("UPDATE accounts SET offersdone = " +
+											"(offersdone + 1) WHERE username = '" + 
+											acceptedBy + "';");
+					System.out.println("Rating submitted!\n");
+					Validation.statement.execute("DELETE FROM offers WHERE " +
+														"offerid = " + offerid + ";");
+				}
+				else
+					validOption = false;
+			} while (!validOption);
+			
+		}
+		catch (java.sql.SQLException e) {
+			System.err.println(e);
+			System.exit(-1);
+		}
+	}
+	//*/
 }

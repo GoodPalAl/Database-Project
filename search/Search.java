@@ -125,7 +125,7 @@ public class Search {
 					System.out.println("Enter\n'n' for the next " + limit +
 											" posts\n'v' to view an offer " +
 											"or\n'q' to quit.");
-					String response = Validation.input.nextLine();
+					String response = Validation.preventSQLInjection(Validation.input.nextLine());
 					System.out.println();
 					char c = 'z';
 					if (response.length() > 0)
@@ -137,7 +137,7 @@ public class Search {
 							System.out.println("Enter\n'n' for the next " + limit + 
 													" posts\n'v' to view an " +
 													"offer or\n'q' to quit.");
-							response = Validation.input.nextLine();
+							response = Validation.preventSQLInjection(Validation.input.nextLine());
 							System.out.println();
 						}
 						if (response.length() > 0)
@@ -146,7 +146,7 @@ public class Search {
 							System.out.print("Enter offer number you would " +
 													"like to view: ");
 							int selection = -1;
-							response = Validation.input.nextLine();
+							response = Validation.preventSQLInjection(Validation.input.nextLine());
 							System.out.println();
 							if (response.length() > 0)
 								selection = 
@@ -156,7 +156,7 @@ public class Search {
 								System.out.print("Type 'y' to accept offer " +
 													"(type anything else to " +
 													"decline): ");
-								response = Validation.input.nextLine();
+								response = Validation.preventSQLInjection(Validation.input.nextLine());
 								System.out.println();
 								if (response.length() > 0)
 									if (Character.toLowerCase(response.charAt(0)) == 'y') {
@@ -166,7 +166,7 @@ public class Search {
 											System.out.print("It seems like your account is not labelled " +
 															"as a pet sitter, and therefore, cannot accept offers.\n " + 
 															"Would you like to update your account info? (Type y to accept.) ");
-											response = Validation.input.nextLine();
+											response = Validation.preventSQLInjection(Validation.input.nextLine());
 											System.out.println();
 											if (Character.toLowerCase(response.charAt(0)) == 'y') {
 												UserProfile.editUserProfile();
@@ -201,7 +201,7 @@ public class Search {
 		// Promp user if they would like to navigate to another page
 		do {
 			System.out.println(Validation.OPTIONS);
-			String str = Validation.input.nextLine();
+			String str = Validation.preventSQLInjection(Validation.input.nextLine());
             System.out.println();
 			if (str.length() > 0) {
 				c = Character.toLowerCase(str.charAt(0));
@@ -240,7 +240,7 @@ public class Search {
 										"sit? \n Enter each number " +
                                    		"seperated by a space. " +
 										"(If no preference, hit enter.)");
-                str = Validation.input.nextLine();
+                str = Validation.preventSQLInjection(Validation.input.nextLine());
 				System.out.println();
                 if (str.length() == 0) {
                     for(int i = 0; i < Validation.petTypes.length; ++i)

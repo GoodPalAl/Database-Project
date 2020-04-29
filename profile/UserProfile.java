@@ -170,7 +170,7 @@ public class UserProfile {
 		do {
 			System.out.println("Please enter which part of your profile you " + 
 								"would like to update:\n" + USER_EDIT_OPTIONS);
-			String str = Validation.input.nextLine();
+			String str = Validation.preventSQLInjection(Validation.input.nextLine());
 			System.out.println();
 			if (str.length() > 0) {
 				response = Character.toLowerCase(str.charAt(0));
@@ -221,7 +221,7 @@ public class UserProfile {
 		char response;
 		do {
 			System.out.println(USER_OPTIONS);
-			String str = Validation.input.nextLine();
+			String str = Validation.preventSQLInjection(Validation.input.nextLine());
 			if (str.length() > 0) {
 				response = Character.toLowerCase(str.charAt(0));
 				System.out.println();
@@ -233,7 +233,7 @@ public class UserProfile {
 					else {
 						System.out.println("Your account is not specified as an owner!");
 						System.out.print("Would you like to edit your profile to change that? (Enter y to accept.) ");
-						String in = Validation.input.nextLine();
+						String in = Validation.preventSQLInjection(Validation.input.nextLine());
 						if (in.length() > 0)
 							if (Character.toLowerCase(in.charAt(0)) == 'y')
 								editUserProfile();
@@ -254,7 +254,7 @@ public class UserProfile {
 		// Promp user if they would like to navigate to another page
 		do {
 			System.out.println(Validation.OPTIONS);
-			String str = Validation.input.nextLine();
+			String str = Validation.preventSQLInjection(Validation.input.nextLine());
 			if (str.length() > 0) {
 				c = Character.toLowerCase(str.charAt(0));
 				System.out.println();

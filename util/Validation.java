@@ -32,11 +32,14 @@ public class Validation {
 	final public static SimpleDateFormat TS_FORMAT =
 		new SimpleDateFormat("MMMMM dd yyyy, hh:mm aa");	// Prints timestamps like: "April 25 2020, 12:30 pm"
 
+	final public static SimpleDateFormat SQL_TS_FORMAT =
+		new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+
 	final public static SimpleDateFormat DATE_FORMAT =
 		new SimpleDateFormat("MMMMM dd yyyy");	// Prints timestamps like: "April 25 2020"
 
 	final public static DecimalFormat CURRENCY_FORMAT = 
-		new DecimalFormat(".##");
+		new DecimalFormat("#.##");
 
 	final public static int MAX_LENGTH = 50, PASS_LEN_MIN = 8,
 							  PASS_LEN_MAX = 15, DESC_MAX_LENGTH = 500;
@@ -210,13 +213,13 @@ public class Validation {
 				System.out.println("Username already exists\n");
 				System.out.println("Username: ");
 			}
-			username = Validation.input.nextLine();
+			username = Validation.preventSQLInjection(Validation.input.nextLine());
 			while (username.length() == 0 ||
 						 username.length() > Validation.MAX_LENGTH) {
 				System.out.println("Usernames must be " + Validation.MAX_LENGTH +
 													 " characters or fewer");
 				System.out.print("Username: ");
-				username = Validation.input.nextLine();
+				username = Validation.preventSQLInjection(Validation.input.nextLine());
 			}
 			query = "SELECT username FROM accounts WHERE username = '" +
 				username + "';";
@@ -260,12 +263,12 @@ public class Validation {
 		// Display as plain text instead
 		else {
 			System.out.print("Password: ");
-			password = Validation.input.nextLine();
+			password = Validation.preventSQLInjection(Validation.input.nextLine());
 			while (!Validation.isValidPassword(password)) {
 				System.out.println("Password is not valid. "
 													 + Validation.PASSWORD_REQS);
 				System.out.print("Password: ");
-				password = Validation.input.nextLine();
+				password = Validation.preventSQLInjection(Validation.input.nextLine());
 			}
 		}
 		System.out.println();
@@ -273,52 +276,52 @@ public class Validation {
 	}
 
 	static public String getFullname() {
-		String fullname = Validation.input.nextLine();
+		String fullname = Validation.preventSQLInjection(Validation.input.nextLine());
 		System.out.println();
 		while (fullname.length() == 0 ||
 					 fullname.length() > Validation.MAX_LENGTH) {
 			System.out.println("Full names must be " + Validation.MAX_LENGTH +
 												 " characters or fewer");
 			System.out.print("Enter your full name: ");
-			fullname = Validation.input.nextLine();
+			fullname = Validation.preventSQLInjection(Validation.input.nextLine());
 			System.out.println();
 		}
 		return fullname;
 	}
 
 	static public String getEmail() {
-		String email = Validation.input.nextLine();
+		String email = Validation.preventSQLInjection(Validation.input.nextLine());
 		System.out.println();
 		while (!Validation.isValidEmail(email)) {
 			System.out.println("Please enter a valid email (less than " +
 												 Validation.MAX_LENGTH + " characters) in format:"
 												 + "\n\tusername@website.domain");
 			System.out.print("Email: ");
-			email = Validation.input.nextLine();
+			email = Validation.preventSQLInjection(Validation.input.nextLine());
 		}
 		return email;
 	}
 
 	static public String getCity() {
-		String city = Validation.input.nextLine();
+		String city = Validation.preventSQLInjection(Validation.input.nextLine());
 		System.out.println();
 		while (city.length() == 0 || city.length() > Validation.MAX_LENGTH) {
 			System.out.println("City must be " + Validation.MAX_LENGTH +
 												 " characters or fewer");
 			System.out.print("Please enter your city name: ");
-			city = Validation.input.nextLine();
+			city = Validation.preventSQLInjection(Validation.input.nextLine());
 			System.out.println();
 		}
 		return city;
 	}
 
 	static public String getState() {
-		String state = Validation.input.nextLine();
+		String state = Validation.preventSQLInjection(Validation.input.nextLine());
 		System.out.println();
 		while (!Validation.isAState(state)) {
 			System.out.print("Please enter a valid two character "
 											 + "state code: ");
-			state = Validation.input.nextLine();
+			state = Validation.preventSQLInjection(Validation.input.nextLine());
 			System.out.println();
 		}
 		return state;
@@ -360,14 +363,14 @@ public class Validation {
 
 	static public String getPetName()
 	{
-		String petname = Validation.input.nextLine();
+		String petname = Validation.preventSQLInjection(Validation.input.nextLine());
 		System.out.println();
 		while (petname.length() == 0 ||
 					 petname.length() > Validation.MAX_LENGTH) {
 			System.out.println("Pet names must be " + Validation.MAX_LENGTH +
 												 " characters or fewer");
 			System.out.print("Enter your pet's name: ");
-			petname = Validation.input.nextLine();
+			petname = Validation.preventSQLInjection(Validation.input.nextLine());
 			System.out.println();
 		}
 
@@ -458,7 +461,7 @@ public class Validation {
 			// Loop until user enters a name of a pet that actually exists.
 			do{
 				System.out.print("Enter the name of pet: ");
-				name = Validation.input.nextLine();
+				name = Validation.preventSQLInjection(Validation.input.nextLine());
 				System.out.println();
 				if (name.length () > 0) {
 					query = "SELECT petID FROM pets WHERE owner = '" +
@@ -501,7 +504,7 @@ public class Validation {
 			if (c != 'y')
 				System.out.println("Enter your post's additional information: ");
 
-			desc = Validation.input.nextLine();
+			desc = Validation.preventSQLInjection(Validation.input.nextLine());
 			System.out.println();
 
 			while (desc.length() > Validation.DESC_MAX_LENGTH) {
@@ -510,7 +513,7 @@ public class Validation {
 													 " limit. Length: " + desc.length());
 				System.out.println("Please enter your post's additional " +
 													 "information: ");
-				desc = Validation.input.nextLine();
+				desc = Validation.preventSQLInjection(Validation.input.nextLine());
 				System.out.println();
 			}
 
@@ -523,7 +526,7 @@ public class Validation {
 													 "correct. (Type 'y' to confirm.)");
 				System.out.println("\"" + desc +"\"");
 			}
-			String temp = Validation.input.nextLine();
+			String temp = Validation.preventSQLInjection(Validation.input.nextLine());
 			if (temp.length() == 0)
 				c = 'z';
 			else 
@@ -534,21 +537,23 @@ public class Validation {
 
 		return desc;
 	}
-	public static double getPayment()
-	{
-		// Rounding input to 2 decimals
-		String str = Validation.CURRENCY_FORMAT.format(Double.parseDouble(Validation.input.nextLine()));
-		Double payment = Double.parseDouble(str);
-		System.out.println();
+	public static double getPayment() {
+		Double payment = 0.0;
+		boolean validOption = true;
+		do {
+			try {
+				// Rounding input to 2 decimals
+				if (!validOption)
+					System.out.print("Enter your post's payment amount: $");
+				payment = Double.valueOf(Validation.input.nextLine());
+				validOption = true;
+			}
+			catch (Exception e){
+				System.out.println("Invalid input!");
+				validOption = false;
+			}
+		} while (!validOption);
 
-		while (payment < 0 || payment >= 10000 || payment == null)
-		{
-			System.out.println("Invalid value entered.");
-			System.out.print("Enter your post's payment amount: $");
-			str = Validation.CURRENCY_FORMAT.format(Validation.input.nextLine());
-			payment = Double.parseDouble(str);
-			System.out.println();
-		}
 		return payment;
 	}
 	
@@ -560,13 +565,15 @@ public class Validation {
 		do{
 			badTS = false;
 			try{		
-				System.out.print("Start Date and Time (yyyy-MM-dd hh:mm:ss): ");
-				str = Validation.input.nextLine();
+				System.out.print("Start Date and Time (" + TS_FORMAT.toPattern() + "): ");
+				str = Validation.preventSQLInjection(Validation.input.nextLine());
 				System.out.println();
 				if (str.length() == 0)
 					throw new Exception();
 				
-					ts = Timestamp.valueOf(str);
+				// Convert time from input to format SQL prefers
+				str = SQL_TS_FORMAT.format(TS_FORMAT.parse(str));
+				ts = Timestamp.valueOf(str);
 			}
 			catch (Exception e) { 
 				badTS = true; 
@@ -585,12 +592,14 @@ public class Validation {
 		do{
 			badTS = false;
 			try{		
-				System.out.print("End Date and Time (yyyy-MM-dd hh:mm:ss): ");
-				str = Validation.input.nextLine();
+				System.out.print("End Date and Time (" + TS_FORMAT.toPattern() + "): ");
+				str = Validation.preventSQLInjection(Validation.input.nextLine());
 				System.out.println();
 				if (str.length() == 0)
 					throw new Exception();
-				
+
+				// Convert time from input to format SQL prefers
+				str = SQL_TS_FORMAT.format(TS_FORMAT.parse(str));
 				ts = Timestamp.valueOf(str);
 			}
 			catch (Exception e) { 
