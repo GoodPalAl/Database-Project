@@ -1,3 +1,7 @@
+// Pet Sitting Services
+// Created by Emma Griffin, Al Allums, and Sydney McClure
+// Due Date: 29 April 2020 (c)
+
 package util;
 
 import java.util.Scanner;
@@ -7,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.text.DecimalFormat;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -25,10 +30,13 @@ public class Validation {
 	final public static Scanner input = new Scanner(System.in);
 
 	final public static SimpleDateFormat TS_FORMAT =
-	new SimpleDateFormat("MMMMM dd yyyy, hh:mm aa");	// Prints timestamps like: "April 25 2020, 12:30 pm"
+		new SimpleDateFormat("MMMMM dd yyyy, hh:mm aa");	// Prints timestamps like: "April 25 2020, 12:30 pm"
 
 	final public static SimpleDateFormat DATE_FORMAT =
 		new SimpleDateFormat("MMMMM dd yyyy");	// Prints timestamps like: "April 25 2020"
+
+	final public static DecimalFormat CURRENCY_FORMAT = 
+		new DecimalFormat(".##");
 
 	final public static int MAX_LENGTH = 50, PASS_LEN_MIN = 8,
 							  PASS_LEN_MAX = 15, DESC_MAX_LENGTH = 500;
@@ -402,7 +410,7 @@ public class Validation {
 		return age;
 	}
 
-	public static boolean petExists(String petName){
+	public static boolean petExists(String petName) {
 		boolean ret = false;
 		try{
 			ResultSet rs = Validation.statement.executeQuery(
@@ -475,46 +483,11 @@ public class Validation {
 			System.exit(-1);
 		}
 		return petID;
-		//*/
-		//return 0;
 	}
 	
 	// Prompts user for a name and returns the pet's id
 	public static int getSitting()
 	{
-		/*
-		try
-		{
-			String petname = Validation.input.nextLine();
-			System.out.println();
-			String query = "SELECT petID from pets WHERE petname = '"+
-							petname +"' AND owner = '" + 
-							Validation.curUsername +"';";
-
-			while (numMatches(query, "pets") != 1) {
-				System.out.println("Couldn't find a pet on your account " +
-									"with the name " + petname + ".");
-				System.out.print("Please enter your pet's name: ");
-				petname = Validation.input.nextLine();
-				System.out.println();
-				query = "SELECT petID from pets WHERE petname = '"+
-							petname +"' AND owner = '" + 
-							Validation.curUsername +"';";
-			}
-
-			ResultSet rs = querySQL(query);
-			int ret = rs.getInt("petID");
-			rs.close();
-			return ret;
-		}
-		catch (java.sql.SQLException e)
-		{
-			System.err.println(e);
-			System.exit(-1);
-		}
-
-		return -1;
-		*/
 		return findPetIDFromPetName();
 	}
 	public static String getDescription()
@@ -542,15 +515,21 @@ public class Validation {
 			}
 
 			if (desc.length() == 0)
-				System.out.println("Your post will have no description, is that" +
-													 " okay? (Type 'y' to confirm.)");
+				System.out.println("Your post will have no description, is that " +
+										"okay? (Type 'y' to confirm.)");
 			else
 			{
 				System.out.println("Verify that your post's description is " +
 													 "correct. (Type 'y' to confirm.)");
 				System.out.println("\"" + desc +"\"");
 			}
-			c = Character.toLowerCase(Validation.input.nextLine().charAt(0));
+			String temp = Validation.input.nextLine();
+			if (temp.length() == 0)
+				c = 'z';
+			else 
+				c = Character.toLowerCase(temp.charAt(0));
+
+			System.out.println();
 		} while (c != 'y');
 
 		return desc;
@@ -558,19 +537,18 @@ public class Validation {
 	public static double getPayment()
 	{
 		// Rounding input to 2 decimals
-		double payment = Math
-			.round(Double.parseDouble(Validation.input.nextLine()) * 100) / 100;
+		String str = Validation.CURRENCY_FORMAT.format(Double.parseDouble(Validation.input.nextLine()));
+		Double payment = Double.parseDouble(str);
 		System.out.println();
 
-		while (payment < 0 || payment >= 10000)
+		while (payment < 0 || payment >= 10000 || payment == null)
 		{
 			System.out.println("Invalid value entered.");
 			System.out.print("Enter your post's payment amount: $");
-			payment = Math
-				.round(Double.parseDouble(Validation.input.nextLine()) * 100)/100;
+			str = Validation.CURRENCY_FORMAT.format(Validation.input.nextLine());
+			payment = Double.parseDouble(str);
 			System.out.println();
 		}
-
 		return payment;
 	}
 	
@@ -621,5 +599,18 @@ public class Validation {
 			}
 		} while (badTS);
 		return ts;
+	}
+
+	public static String preventSQLInjection(String query) {
+		StringBuilder sb = new StringBuilder(query);
+		// Insert single quote for each existing quote to escape single
+		// quotes in text
+		for (int i = 0, strLen = sb.toString().length(); i < strLen; ++i)
+			if (sb.charAt(i) == '\'') {
+				++strLen;
+				sb.insert(++i, '\'');
+			}
+
+		return sb.toString();
 	}
 }

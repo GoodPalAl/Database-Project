@@ -1,3 +1,7 @@
+// Pet Sitting Services
+// Created by Emma Griffin, Al Allums, and Sydney McClure
+// Due Date: 29 April 2020 (c)
+
 package profile;
 
 import java.util.Scanner;
@@ -37,10 +41,10 @@ public class PetProfile
 		do {
 			System.out.println(PET_OPTIONS);
 			String str = Validation.input.nextLine();
+			System.out.println();
 			if (str.length() > 0)
 			{
 				response = Character.toLowerCase(str.charAt(0));
-				System.out.println();
 				if (response == 'a')
 					addPetInfo();
 				else if (response == 'u')
@@ -91,6 +95,7 @@ public class PetProfile
 												 "add a pet (y/n)?");
 			do {
 				String y_or_n = Validation.input.nextLine();
+				System.out.println();
 				if (badOption) {
 					System.out.print("Invalid option.\n" +
 													 "Please enter y to add pet or n to return to:" +
@@ -192,10 +197,10 @@ public class PetProfile
 									"Would you like to update their "+
 									"information instead? (y/n)");
 				String str = Validation.input.nextLine();
+				System.out.println();
 				if (str.length() > 0) {
 					Validation.input.nextLine();
 					c = Character.toLowerCase(str.charAt(0));
-					System.out.println();
 				}
 				else
 					c = 'z';

@@ -1,3 +1,7 @@
+// Pet Sitting Services
+// Created by Emma Griffin, Al Allums, and Sydney McClure
+// Due Date: 29 April 2020 (c)
+
 // Login page for petsitting service
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -127,13 +131,13 @@ public class Login {
 
 		String insertCMD = 
 			"INSERT INTO accounts (username, fullname, " + 
-			"password, email, tsjoined, offersdone, " + 
-			"issitter, isowner, city, state)" +
+				"password, email, tsjoined, offersdone, " + 
+				"issitter, isowner, city, state)" +
 			"VALUES('" + username + "', '" + fullname +
-			"', crypt('" + password + "', 'md5'), '" +
-			email + "', NOW()," + " 0, '" + Validation.userIsSitter +
-			"', '" + Validation.userIsOwner + "', '" + city + "', '" +
-			state + "');";
+				"', crypt('" + password + "', 'md5'), '" +
+				email + "', NOW()," + " 0, '" + Validation.userIsSitter +
+				"', '" + Validation.userIsOwner + "', '" + city + "', '" +
+				state + "');";
 
 		Validation.updateSQL(insertCMD);
 		Validation.curUsername = username;
@@ -151,8 +155,8 @@ public class Login {
 			// open connection to database
 			Connection connection
 				= DriverManager.getConnection(//"jdbc:postgresql://dbhost:port/dbname", "user", "dbpass");
-												"jdbc:postgresql://127.0.0.1:5432/final_project",
-												"emma", "pass");
+												"jdbc:postgresql://127.0.0.1:5432/postgres",
+												"postgres", "@mmy0306SQL");
 
 			Validation.statement
 				= connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
@@ -163,6 +167,7 @@ public class Login {
 			while(!validResponse) {
 				System.out.println(PROMPT);
 				String str = Validation.input.nextLine();
+				System.out.println();
 				if (str.length() > 0)
 				{
 					char response = Character.toLowerCase(str.charAt(0));
@@ -186,11 +191,6 @@ public class Login {
 
 			// Figure out which page/view to switch the user to now that
 			// their credentials have been created or validated in the db.
-			/*
-			System.out.println(Validation.OPTIONS);
-			char response = Validation.input.nextLine().toLowerCase().charAt(0);
-			System.out.println();
-			//*/
 			String str;
 			char response = 'z';
 
@@ -199,14 +199,28 @@ public class Login {
 					response = UserProfile.goToUserProfile();
 				else if (response == 's')
 					response = Search.goToSearch();
-				else if (response == 'c')
-					response = Offer.goToCreateOffer();	// EDITED BY AL 4 24 2020
+				else if (response == 'c'){
+					if (Validation.userIsOwner)
+						response = Offer.goToCreateOffer();
+					else {
+						System.out.println(
+							"It seems like your account is not labelled " +
+							"as a pet owner, and therefore, cannot create offers.\n " + 
+							"Would you like to update your account info? (Type y to accept.) ");
+						String in = Validation.input.nextLine();
+						System.out.println();
+						if (in.length() == 1 && Character.toLowerCase(in.charAt(0)) == 'y')
+							UserProfile.editUserProfile();
+						response = 'z';
+						continue;
+					}
+				}
 				else {
 					System.out.println(Validation.OPTIONS);
 					str = Validation.input.nextLine();
+					System.out.println();
 					if (str.length() > 0) {
 						response = Character.toLowerCase(str.charAt(0));
-						System.out.println();
 					}
 					else
 						response = 'z';

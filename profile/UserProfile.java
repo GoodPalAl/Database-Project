@@ -1,3 +1,7 @@
+// Pet Sitting Services
+// Created by Emma Griffin, Al Allums, and Sydney McClure
+// Due Date: 29 April 2020 (c)
+
 package profile;
 
 // UserProfile page for petsitting service
@@ -5,11 +9,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
-//import java.util.Date;
 import java.sql.Date;
-import util.Validation;
 import java.lang.reflect.Method;
 import java.util.Collections;
+import java.util.ArrayList;
+
+import util.Validation;
+import search.Offer;
 
 
 
@@ -108,12 +114,15 @@ public class UserProfile {
 
 	public static void displayUserProfile() {
 		try {
-			ResultSet rs = Validation.querySQL("SELECT username, fullname, " +
-												"email, issitter, isowner, " +
-												"rating, tsjoined, city, " +
-												"state FROM accounts WHERE " +
-												"username = '" +
-												Validation.curUsername + "';");
+			ResultSet rs = 
+				Validation.querySQL(
+				"SELECT username, fullname, " +
+				"email, issitter, isowner, " +
+				"rating, offersdone, tsjoined, " +
+				"city, state FROM accounts WHERE " +
+				"username = '" +
+				Validation.curUsername + "';");
+
 			while (rs.next()) {
 				System.out.println("username: " + rs.getString("username"));
 				System.out.println("fullname: " + rs.getString("fullname"));
@@ -123,7 +132,11 @@ public class UserProfile {
 				if (rs.getBoolean("isowner")) {
 					// TODO: print number of pets with *maybe* basic summarized info
 				}
-				System.out.println("rating: " + (rs.getDouble("rating") == 0.0 ? "none" : String.valueOf(rs.getDouble("rating"))));
+				// Only shows offersdone and rating IF the user is a pet sitter
+				if (rs.getBoolean("issitter")) {
+					System.out.println("offers done: " + rs.getInt("offersdone"));
+					System.out.println("rating: " + (rs.getDouble("rating") == 0.0 ? "none" : String.valueOf(rs.getDouble("rating"))));
+				}
 				System.out.println("joined: " + 
 									Validation.DATE_FORMAT.format(new Date 
 										(rs.getTimestamp ("tsjoined").getTime())));
@@ -139,27 +152,27 @@ public class UserProfile {
 	}
 
 	public static void editUserProfile() {
-		String USER_EDIT_OPTIONS
-			= 	"Enter \n" +
-				"'u' for username, \n" +
-				"'p' for password, \n" +
-				"'f' for fullname, \n" +
-				"'e' for email, \n" +
-				"'s' for pet sitter, \n" +
-				"'o' for pet owner, \n" +
-				"'c' for city, \n" +
-				"'t' for state, or \n" +
-				"'q' to cancel editing.";
+		String USER_EDIT_OPTIONS = 	
+			"Enter \n" +
+			"'u' for username, \n" +
+			"'p' for password, \n" +
+			"'f' for fullname, \n" +
+			"'e' for email, \n" +
+			"'s' for pet sitter, \n" +
+			"'o' for pet owner, \n" +
+			"'c' for city, \n" +
+			"'t' for state, or \n" +
+			"'q' to cancel editing.";
 
 		char response = 'z';
 		boolean badOption = false;
 
-		do{
+		do {
 			System.out.println("Please enter which part of your profile you " + 
 								"would like to update:\n" + USER_EDIT_OPTIONS);
 			String str = Validation.input.nextLine();
 			System.out.println();
-			if(str.length() > 0) {
+			if (str.length() > 0) {
 				response = Character.toLowerCase(str.charAt(0));
 				System.out.println();
 				if (response == 'q')
@@ -183,41 +196,9 @@ public class UserProfile {
 			else
 				badOption = true;
 		} while (badOption);
+
 		if (response != 'q')
 			System.out.println("Account info updated!\n");
-		/*
-		System.out.println("Please enter which part of your profile you " + 
-							"would like to update:\n" + USER_EDIT_OPTIONS);
-		String str = Validation.input.nextLine();
-		System.out.println();
-		response = Character.toLowerCase(Validation.input.nextLine().charAt(0));
-		do {
-			if (badOption) {
-				System.out.println("Invalid option.\n" + 
-									"Please enter which " + 
-									"part of your profile you would like to " + 
-									"update:\n" + USER_EDIT_OPTIONS);
-				response = Validation.input.nextLine().charAt(0);
-				System.out.println();
-			}
-			if (response == 'q')
-				break;
-			try {
-				Method m = updateUserField.get(response);
-				if (m == null)
-					badOption = true;
-				else
-					m.invoke(null);
-			}
-			// Will catch case where a bad key is passed to
-			// updateUserField map
-			catch (java.lang.ReflectiveOperationException e) {
-				badOption = true;
-			}
-		} while (badOption);
-		if (response != 'q')
-			System.out.println("Account info updated!\n");
-		//*/
 	}
 
 
@@ -226,9 +207,11 @@ public class UserProfile {
 	// prior.
 	public static char goToUserProfile() {
 		String USER_OPTIONS = 
-			"Enter  \n" +
-			"'u' to update account information, \n" +	// EDIT: changed 'a' to edit to 'u' to update
-			(Validation.userIsOwner ? "'p' to view/edit pet information, \n" : "") +
+			"Enter\n" +
+			"'u' to update account information, \n" +
+			//(Validation.userIsOwner ? "'p' to view/edit pet information, \n" : "") +
+			"'p' to view/edit pet information, \n" +
+			"'o' to view/edit your offer history, or\n" +
 			"'v' to view account information again, or\n" +
 			"'e' to exit.";
 		// Display current profile information
@@ -237,19 +220,31 @@ public class UserProfile {
 		// Prompt user if they would like to edit profile
 		char response;
 		do {
-			// EDITED BY AL: converted response to lower case
 			System.out.println(USER_OPTIONS);
 			String str = Validation.input.nextLine();
-			if (str.length() > 0)
-			{
+			if (str.length() > 0) {
 				response = Character.toLowerCase(str.charAt(0));
 				System.out.println();
 				if (response == 'u')
 					editUserProfile();
-				else if (response == 'p' && Validation.userIsOwner)	// EDIT : checks if the user is an owner too
-					PetProfile.goToPetProfile();
-				else if (response == 'v')
+				else if (response == 'p') {
+					if (Validation.userIsOwner)
+						PetProfile.goToPetProfile();
+					else {
+						System.out.println("Your account is not specified as an owner!");
+						System.out.print("Would you like to edit your profile to change that? (Enter y to accept.) ");
+						String in = Validation.input.nextLine();
+						if (in.length() > 0)
+							if (Character.toLowerCase(in.charAt(0)) == 'y')
+								editUserProfile();
+					}
+				}
+				else if (response == 'o')
+					Offer.displayOfferHistory();
+				else if (response == 'v') {
 					displayUserProfile();
+					System.out.println();
+				}
 			}
 			else 
 				response = 'z';
