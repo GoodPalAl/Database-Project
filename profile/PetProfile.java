@@ -118,7 +118,7 @@ public class PetProfile
 		}
 		curPetID = Validation.findPetIDFromPetName();
 		displayPetInfo(curPetID);
-		final String PET_EDIT_OPTIONS =		// EDITED: moved "delete pet" option to pet viewing menu
+		final String PET_EDIT_OPTIONS =
 			"Enter \n" +
 			"'t' for pet type, \n" +
 			"'n' for pet name, \n" +
@@ -222,7 +222,6 @@ public class PetProfile
 											 " pet is < a year old) ");
 			age = Validation.getPetAge();
 
-			// FIXME: should PETID be handled on the sql side??
 			String insertCMD =	"INSERT INTO pets (pettype, petname, " +
 								"birthyear, owner)" +
 								"VALUES('" + petType +

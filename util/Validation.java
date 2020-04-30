@@ -94,7 +94,6 @@ public class Validation {
 		return numMatches(query, "accounts");
 	}
 
-	// FIXME: DELETE THIS BITCH
 	public static int numMatches(String query, String database) {
 		try {
 			ResultSet rs = Validation.statement.executeQuery(query);
@@ -383,7 +382,7 @@ public class Validation {
 			System.out.println(i + ") " + petTypes[i]);
 	}
 
-	public static String getPetType()	// EDIT: changed to utilize String[] Pet_Types
+	public static String getPetType()
 	{
 		int response = Integer.parseInt(input.nextLine());
 		System.out.println();
@@ -399,7 +398,6 @@ public class Validation {
 		return petTypes[response];
 	}
 
-	// FIXME: emma said she had a plan for this one
 	static public int getPetAge()
 	{
 		int age = Integer.parseInt(input.nextLine());
@@ -434,8 +432,6 @@ public class Validation {
 		return ret;
 	}
 	
-	//Added by Al
-	//Editted by Sydney
 	public static String findNameFromPetID(int sitting){
 		try{
 			ResultSet rs = Validation.statement.executeQuery("SELECT petName FROM pets WHERE petID = " + sitting + " ;");

@@ -91,7 +91,6 @@ public class UserProfile {
 											Validation.curUsername));
 	}
 
-
 	// Map of characters to the corresponding method to update the associated
 	// user data
 	final static Map<Character, Method> updateUserField
@@ -129,9 +128,7 @@ public class UserProfile {
 				System.out.println("email: " + rs.getString("email"));
 				System.out.println("pet sitter?: " + (rs.getBoolean("issitter") ? "yes" : "no"));
 				System.out.println("pet owner?: " + (rs.getBoolean("isowner") ? "yes" : "no"));
-				if (rs.getBoolean("isowner")) {
-					// TODO: print number of pets with *maybe* basic summarized info
-				}
+
 				// Only shows offersdone and rating IF the user is a pet sitter
 				if (rs.getBoolean("issitter")) {
 					System.out.println("offers done: " + rs.getInt("offersdone"));
@@ -166,7 +163,7 @@ public class UserProfile {
 
 		char response = 'z';
 		boolean badOption = false;
-
+		
 		do {
 			System.out.println("Please enter which part of your profile you " + 
 								"would like to update:\n" + USER_EDIT_OPTIONS);
@@ -201,7 +198,6 @@ public class UserProfile {
 			System.out.println("Account info updated!\n");
 	}
 
-
 	// Method used to transfer current page to Profile. Returns character
 	// matching next page destination. Assumes curUsername has been validated
 	// prior.
@@ -209,7 +205,6 @@ public class UserProfile {
 		String USER_OPTIONS = 
 			"Enter\n" +
 			"'u' to update account information, \n" +
-			//(Validation.userIsOwner ? "'p' to view/edit pet information, \n" : "") +
 			"'p' to view/edit pet information, \n" +
 			"'o' to view/edit your offer history, or\n" +
 			"'v' to view account information again, or\n" +

@@ -40,7 +40,7 @@ public class Search {
     public static char goToSearch() {
         final int DESC_PREVIEW_LEN = 50;
 
-        ArrayList<String> includedTypes = filterPets();
+		ArrayList<String> includedTypes = filterPets();
 
         System.out.println("Searching for posts in your city...");
         System.out.println();
@@ -51,7 +51,7 @@ public class Search {
 		do {
 			String query =
 				"SELECT owner, pettype, payment, tsposted, tsstart, tsend, description "+
-				"FROM offers, pets, accounts "+
+				"FROM offers, pets, accounts " +
 				"WHERE sitting = petid AND owner = username " +
 				// User cannot search for their own posts
 				"AND owner <> '" + Validation.curUsername + "' " +
@@ -270,9 +270,5 @@ public class Search {
         } while(!validOption);
 
         return include;
-    }
-    public static void viewSearch()
-    {
-
     }
 }

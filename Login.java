@@ -60,11 +60,11 @@ public class Login {
 			System.out.print("Enter password: ");
 			password = String.valueOf(cons.readPassword());
 			System.out.println();
-    }
-    else {
+		}
+		else {
 			System.out.print("Enter password: ");
 			password = Validation.preventSQLInjection(Validation.input.nextLine());
-			System.out.println();	// EDIT: Added new line for consistency
+			System.out.println();
 		}
 		String query
 			= "SELECT * FROM accounts WHERE username = '" + username
@@ -154,6 +154,7 @@ public class Login {
       	try {
 			// open connection to database
 			Connection connection
+			// TODO: To use this driver, you must edit this code to use your postgres user information.
 				= DriverManager.getConnection(//"jdbc:postgresql://dbhost:port/dbname", "user", "dbpass");
 												"jdbc:postgresql://127.0.0.1:5432/postgres",
 												"postgres", "@mmy0306SQL");

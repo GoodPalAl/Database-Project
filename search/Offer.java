@@ -66,10 +66,9 @@ public class Offer
 		} while (!Validation.isValidOption(c));
 		return c;
 	}
-	//Editted by Sydney
+	
     public static void createOffer()
     {
-		//StringBuilder desc;
 		String desc;
 		Timestamp start, end;
         double payment; 
@@ -120,7 +119,7 @@ public class Offer
 		System.out.println("Offer created!");
 		System.out.println();
 		
-		displayOfferInfo(curOfferID);
+		//displayOfferInfo(curOfferID);
 		System.out.println();
 	}
 
@@ -176,7 +175,6 @@ public class Offer
 		}
 	}
 
-	//Editted by Sydney
 	public static void displayOfferInfo(int offset, ArrayList<String> includedTypes) {
 		String query = 
 			"SELECT description, tsposted, tsstart, tsend, payment, petname " +
@@ -291,7 +289,6 @@ public class Offer
 			System.out.println();
 			if (in.length() == 1){
 				if (Character.toLowerCase(in.charAt(0)) == 'd') {
-					//System.out.println("This feature is coming soon!"); // TODO:
 					System.out.print("Enter offer number you would " +
 												"like to delete (type 'c' to cancel): ");
 					int selection = -1;
@@ -304,8 +301,6 @@ public class Offer
 						}
 					selection = Character.getNumericValue(response.charAt(0));
 					if (selection >= 1) {
-						//editPendingOffer(selection - 1);
-						//System.out.println("This feature is coming soon!");
 						deletePendingOffer(selection - 1);
 						return;
 					}
@@ -486,93 +481,4 @@ public class Offer
 			System.exit(-1);
 		}
 	}
-
-	/*
-	public static void editPendingOffer(int offset){
-		char c = 'z';
-		boolean badOption = false;
-		String query = 
-			"SELECT offerid, description, tsstart, tsend, payment, petname, petid " +
-			"FROM offers, pets, accounts " +
-			"WHERE acceptby IS NULL " +
-			"AND sitting = petid AND owner = username " +
-			"AND owner = '" + Validation.curUsername + "' " +
-			"ORDER BY tsposted DESC LIMIT 1 OFFSET " + offset + ";";
-
-		if(Validation.numMatches(query) == 0) {
-			System.out.println("Invalid offer");
-			return;
-		}
-		try {
-			final String EDIT_OFFER_OPTIONS = 
-				"Enter\n" + 
-				"'d' for description,\n" + 
-				"'s' for starting date/time,\n" + 
-				"'e' for ending date/time,\n" +
-				"'p' for payment, \n" + 
-				"'n' for changing which pet, or \n" + 
-				"'q' to cancel editing.";
-			
-			ResultSet rs = Validation.statement.executeQuery(query);
-			int offerID = rs.getInt("offerid");
-			displayOfferInfo(offerID);
-			rs.close();
-			String desc, petname;
-			int petID;
-			Timestamp start, end;
-			double payment;
-			
-			while (rs.next()) {
-				acceptedBy = rs.getString("acceptby"); 
-				oldRating = rs.getDouble("rating");
-				offerid = rs.getInt("offerid");
-			}
-			rs.close();
-
-			if (acceptedBy.equals("") || acceptedBy.equals(null) || offerid == null){
-				System.out.println("Invalid selection.");
-				return;
-			}
-
-			boolean validOption;
-			do {
-				System.out.print("On a scale of 1 to 5, how would you rate their " +
-									"service? ");
-				int rating = -1;
-				String response = Validation.preventSQLInjection(Validation.input.nextLine());
-				System.out.println();
-				if (response.length() > 0)
-					rating = Character.getNumericValue(response.charAt(0));
-				if (rating >= 1 && rating <= 5) {
-					validOption = true;
-					// First rating!
-					if (oldRating == 0.0)
-						Validation.updateSQL("UPDATE accounts SET rating = " +  rating +
-											" WHERE username = '" + acceptedBy + 
-											"';");
-					else
-						Validation.updateSQL("UPDATE accounts SET rating = " +
-											"(((rating * offersdone) + " + 
-											rating + ") / (offersdone + 1)) " +
-											"WHERE username = '" + acceptedBy + "';");
-					
-					// Increment # of offers done when rating is being given
-					Validation.updateSQL("UPDATE accounts SET offersdone = " +
-											"(offersdone + 1) WHERE username = '" + 
-											acceptedBy + "';");
-					System.out.println("Rating submitted!\n");
-					Validation.statement.execute("DELETE FROM offers WHERE " +
-														"offerid = " + offerid + ";");
-				}
-				else
-					validOption = false;
-			} while (!validOption);
-			
-		}
-		catch (java.sql.SQLException e) {
-			System.err.println(e);
-			System.exit(-1);
-		}
-	}
-	//*/
 }
