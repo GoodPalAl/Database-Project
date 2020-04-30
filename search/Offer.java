@@ -17,7 +17,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 
 import util.Validation;
-//import profile.UserProfile;
 import profile.PetProfile;
 
 
@@ -95,17 +94,6 @@ public class Offer
 								Validation.DESC_MAX_LENGTH + " characters. " +
 								"Press enter when done.\n");
 		desc = Validation.preventSQLInjection(Validation.getDescription());
-		/*
-			desc = new StringBuilder(Validation.getDescription());
-
-			// Insert single quote for each existing quote to escape single
-			// quotes in text
-			for (int i = 0, strLen = desc.toString().length(); i < strLen; ++i)
-				if (desc.charAt(i) == '\'') {
-					++strLen;
-					desc.insert(++i, '\'');
-				}
-		//*/
 
         String insertCMD = "INSERT INTO offers (description, " +
                                 "tsposted, tsstart, tsend, payment, " +
@@ -117,9 +105,6 @@ public class Offer
 
 		Validation.updateSQL(insertCMD);
 		System.out.println("Offer created!");
-		System.out.println();
-		
-		//displayOfferInfo(curOfferID);
 		System.out.println();
 	}
 

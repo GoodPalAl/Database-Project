@@ -157,7 +157,7 @@ public class Login {
 			// TODO: To use this driver, you must edit this code to use your postgres user information.
 				= DriverManager.getConnection(//"jdbc:postgresql://dbhost:port/dbname", "user", "dbpass");
 												"jdbc:postgresql://127.0.0.1:5432/postgres",
-												"postgres", "@mmy0306SQL");
+												"postgres", "password");
 
 			Validation.statement
 				= connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,

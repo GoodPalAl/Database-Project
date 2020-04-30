@@ -30,13 +30,13 @@ public class Validation {
 	final public static Scanner input = new Scanner(System.in);
 
 	final public static SimpleDateFormat TS_FORMAT =
-		new SimpleDateFormat("MMMMM dd yyyy, hh:mm aa");	// Prints timestamps like: "April 25 2020, 12:30 pm"
+		new SimpleDateFormat("MMMMM dd yyyy, hh:mm aa");
 
 	final public static SimpleDateFormat SQL_TS_FORMAT =
 		new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
 	final public static SimpleDateFormat DATE_FORMAT =
-		new SimpleDateFormat("MMMMM dd yyyy");	// Prints timestamps like: "April 25 2020"
+		new SimpleDateFormat("MMMMM dd yyyy");
 
 	final public static DecimalFormat CURRENCY_FORMAT = 
 		new DecimalFormat("#.##");
@@ -463,7 +463,6 @@ public class Validation {
 					query = "SELECT petID FROM pets WHERE owner = '" +
 								Validation.curUsername + "' AND petName = '" + 
 								name + "';";
-					// FIXME: Need to implement code that will check if pet name already exists when inserting new pets for a user.
 					petFound = Validation.numMatches(query, "pets") == 1 ? true : false;	
 				}
 				else{

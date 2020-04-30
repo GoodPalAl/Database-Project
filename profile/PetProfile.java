@@ -30,7 +30,6 @@ public class PetProfile
 			"Enter \n" +
 			"'a' to add a pet to your profile, \n" +
 			"'u' to update an existing pet's information, \n" +
-			//"'d' to delete a pet from your account\n" +
 			"'v' to view your pets' information again, or\n" +
 			"'e' to exit back to your account.";
 
@@ -49,10 +48,6 @@ public class PetProfile
 					addPetInfo();
 				else if (response == 'u')
 					editPetInfo();
-				/*
-				else if (response == 'd')
-					deletePet();
-				//*/
 				else if (response == 'v')
 					displayPetInfo(null);
 			}
@@ -156,14 +151,6 @@ public class PetProfile
 			}
 		} while (badOption);
 	}
-
-	/*
-		// TODO: delete from sql
-		final public static void deletePet()
-		{
-			System.out.println("This feature coming soon!");
-		}
-	//*/
 
 	final public static void updatePetType() {
 		System.out.print("Enter what kind of animal your pet is: ");

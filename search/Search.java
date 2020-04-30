@@ -39,9 +39,7 @@ public class Search {
     // Search Page
     public static char goToSearch() {
         final int DESC_PREVIEW_LEN = 50;
-
 		ArrayList<String> includedTypes = filterPets();
-
         System.out.println("Searching for posts in your city...");
         System.out.println();
 		boolean userStillActive = true;
