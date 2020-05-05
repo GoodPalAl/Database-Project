@@ -42,8 +42,9 @@ public class Validation {
 		new DecimalFormat("#.##");
 
 	final public static int MAX_LENGTH = 50, PASS_LEN_MIN = 8,
-							  PASS_LEN_MAX = 15, DESC_MAX_LENGTH = 500;
-							  
+		                      PASS_LEN_MAX = 15, DESC_MAX_LENGTH = 500,
+		                      USER_LEN_MAX = 20;
+
 	final public static String
 		OPTIONS =	"Enter \n'p' to view/edit your profile, \n" +
 					"'s' to search pet sitting posts, \n" +
@@ -66,8 +67,8 @@ public class Validation {
 	    	"NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX",
 			"UT", "VT", "VA", "WA", "WV", "WI", "WY"};
 
-	final public static String[] petTypes 
-		= { "Dog", "Cat", "Rabbit", "Bird", "Fish", "Reptile", "Rodent", 
+	final public static String[] petTypes
+		= { "Dog", "Cat", "Rabbit", "Bird", "Fish", "Reptile", "Rodent",
 			"Amphibian", "Bug", "Other" };
 
 	// Simple method to wrap all JDBC SQL update commands inside a generic
@@ -162,7 +163,7 @@ public class Validation {
 			// "A" = 65, "Z" = 90
 			if (PW.charAt(i) >= 65 && PW.charAt(i) <= 90)
 				hasCap = true;
-			
+
 			// If all become true, break loop
 			if (hasNum && hasSpecial && hasCap)
 				break;
@@ -214,15 +215,14 @@ public class Validation {
 			}
 			username = Validation.preventSQLInjection(Validation.input.nextLine());
 			while (username.length() == 0 ||
-						 username.length() > Validation.MAX_LENGTH) {
-				System.out.println("Usernames must be " + Validation.MAX_LENGTH +
+						 username.length() > USER_LEN_MAX) {
+				System.out.println("Usernames must be " + USER_LEN_MAX +
 													 " characters or fewer");
 				System.out.print("Username: ");
 				username = Validation.preventSQLInjection(Validation.input.nextLine());
 			}
 			query = "SELECT username FROM accounts WHERE username = '" +
 				username + "';";
-			System.out.println(query);
 		}	while (Validation.numMatches(query) > 0);
 		System.out.println();
 		return username;
@@ -394,7 +394,7 @@ public class Validation {
 			response = Integer.parseInt(input.nextLine());
 			System.out.println();
 		}
-		
+
 		return petTypes[response];
 	}
 
@@ -415,11 +415,10 @@ public class Validation {
 		boolean ret = false;
 		try{
 			ResultSet rs = Validation.statement.executeQuery(
-				"SELECT COUNT(*) as count FROM pets WHERE petName = '" + 
+				"SELECT COUNT(*) as count FROM pets WHERE petName = '" +
 				petName + "' AND owner = '" + curUsername + "';");
 			while (rs.next()) {
 				int i = rs.getInt("count");
-				System.out.println(i);
 				ret = (i == 1 ? true : false);
 			}
 			rs.close();
@@ -431,7 +430,7 @@ public class Validation {
 
 		return ret;
 	}
-	
+
 	public static String findNameFromPetID(int sitting){
 		try{
 			ResultSet rs = Validation.statement.executeQuery("SELECT petName FROM pets WHERE petID = " + sitting + " ;");
@@ -452,7 +451,7 @@ public class Validation {
 		String name;
 		String query = "";
 		boolean petFound = true;
-		
+
 		try {
 			// Loop until user enters a name of a pet that actually exists.
 			do{
@@ -461,9 +460,10 @@ public class Validation {
 				System.out.println();
 				if (name.length () > 0) {
 					query = "SELECT petID FROM pets WHERE owner = '" +
-								Validation.curUsername + "' AND petName = '" + 
+								Validation.curUsername + "' AND petName = '" +
 								name + "';";
-					petFound = Validation.numMatches(query, "pets") == 1 ? true : false;	
+					petFound = Validation.numMatches(query, "pets") == 1 ? true :
+						                                                     false;
 				}
 				else{
 					petFound = false;
@@ -482,7 +482,7 @@ public class Validation {
 		}
 		return petID;
 	}
-	
+
 	// Prompts user for a name and returns the pet's id
 	public static int getSitting()
 	{
@@ -499,7 +499,7 @@ public class Validation {
 			if (c != 'y')
 				System.out.println("Enter your post's additional information: ");
 
-			desc = Validation.preventSQLInjection(Validation.input.nextLine());
+			desc = Validation.input.nextLine();
 			System.out.println();
 
 			while (desc.length() > Validation.DESC_MAX_LENGTH) {
@@ -508,7 +508,7 @@ public class Validation {
 													 " limit. Length: " + desc.length());
 				System.out.println("Please enter your post's additional " +
 													 "information: ");
-				desc = Validation.preventSQLInjection(Validation.input.nextLine());
+				desc = Validation.input.nextLine();
 				System.out.println();
 			}
 
@@ -524,13 +524,13 @@ public class Validation {
 			String temp = Validation.preventSQLInjection(Validation.input.nextLine());
 			if (temp.length() == 0)
 				c = 'z';
-			else 
+			else
 				c = Character.toLowerCase(temp.charAt(0));
 
 			System.out.println();
 		} while (c != 'y');
 
-		return desc;
+		return Validation.preventSQLInjection(desc);
 	}
 	public static double getPayment() {
 		Double payment = 0.0;
@@ -551,7 +551,7 @@ public class Validation {
 
 		return payment;
 	}
-	
+
 	public static Timestamp getOfferStartDate()
 	{
 		String str = null;
@@ -559,35 +559,9 @@ public class Validation {
 		Timestamp ts = null;
 		do{
 			badTS = false;
-			try{		
-				System.out.print("Start Date and Time (" + TS_FORMAT.toPattern() + "): ");
-				str = Validation.preventSQLInjection(Validation.input.nextLine());
-				System.out.println();
-				if (str.length() == 0)
-					throw new Exception();
-				
-				// Convert time from input to format SQL prefers
-				str = SQL_TS_FORMAT.format(TS_FORMAT.parse(str));
-				ts = Timestamp.valueOf(str);
-			}
-			catch (Exception e) { 
-				badTS = true; 
-				System.out.println("Invalid entry.");
-			}
-		} while (badTS);
-		
-		return ts;
-	}
-	
-	public static Timestamp getOfferEndDate()
-	{
-		String str = null;
-		boolean badTS;
-		Timestamp ts = null;
-		do{
-			badTS = false;
-			try{		
-				System.out.print("End Date and Time (" + TS_FORMAT.toPattern() + "): ");
+			try{
+				System.out.print("Start Date and Time (ex: January 01 2020, "
+												 + "12:30 pm): ");
 				str = Validation.preventSQLInjection(Validation.input.nextLine());
 				System.out.println();
 				if (str.length() == 0)
@@ -597,8 +571,36 @@ public class Validation {
 				str = SQL_TS_FORMAT.format(TS_FORMAT.parse(str));
 				ts = Timestamp.valueOf(str);
 			}
-			catch (Exception e) { 
-				badTS = true; 
+			catch (Exception e) {
+				badTS = true;
+				System.out.println("Invalid entry.");
+			}
+		} while (badTS);
+
+		return ts;
+	}
+
+	public static Timestamp getOfferEndDate()
+	{
+		String str = null;
+		boolean badTS;
+		Timestamp ts = null;
+		do{
+			badTS = false;
+			try{
+				System.out.print("End Date and Time (ex: January 01 2020, "
+												 + "12:30 pm): ");
+				str = Validation.preventSQLInjection(Validation.input.nextLine());
+				System.out.println();
+				if (str.length() == 0)
+					throw new Exception();
+
+				// Convert time from input to format SQL prefers
+				str = SQL_TS_FORMAT.format(TS_FORMAT.parse(str));
+				ts = Timestamp.valueOf(str);
+			}
+			catch (Exception e) {
+				badTS = true;
 				System.out.println("Invalid date.");
 			}
 		} while (badTS);
@@ -615,6 +617,20 @@ public class Validation {
 				sb.insert(++i, '\'');
 			}
 
+		return sb.toString();
+	}
+
+	// Undo SQLInjection prevention for displaying query results to user
+	public static String halveSingleQuotes(String result) {
+		StringBuilder sb = new StringBuilder();
+		// Insert single quote for each existing quote to escape single
+		// quotes in text
+		for (int i = 0; i < result.length(); ++i) {
+			if (result.charAt(i) == '\'')
+				sb.append(result.charAt(i++));
+			else
+				sb.append(result.charAt(i));
+		}
 		return sb.toString();
 	}
 }

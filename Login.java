@@ -1,6 +1,6 @@
 // Pet Sitting Services
 // Created by Emma Griffin, Al Allums, and Sydney McClure
-// Due Date: 29 April 2020 (c)
+// Due Date: 29 April 2020
 
 // Login page for petsitting service
 import java.sql.Connection;
@@ -41,7 +41,7 @@ public class Login {
 		"    /) ._______________.  )\n" +
 		"   (( (               (( (\n" +
 		"    ``-'               ``-'\n";
-	final public static String 
+	final public static String
 		GREETING = "Welcome to petsitting_services.com!\n\n",
 		PROMPT =	"Enter \n'l' to login, \n'c' to create account, or \n'q' to quit.";
 
@@ -90,7 +90,10 @@ public class Login {
 		}
 
 		if (accountExists) {
-			System.out.println("Welcome " + Validation.curUsername + "!\n");
+			System.out.println("Welcome " +
+												 Validation.halveSingleQuotes(
+													Validation.curUsername)
+												 + "!\n");
 			return true;
 		}
 
@@ -107,7 +110,7 @@ public class Login {
 		username = Validation.getUsername();
 
 		System.out.println("Please enter a password that meets the" +
-								" following criteria:\n"+Validation.PASSWORD_REQS);
+											 " following criteria:\n"+Validation.PASSWORD_REQS);
 		password = Validation.getPassword();
 
 		System.out.print("Enter your full name: ");
@@ -129,9 +132,9 @@ public class Login {
 		System.out.print("Are you a pet owner (y/n)? ");
 		Validation.userIsOwner = Validation.getIsPetOwner();
 
-		String insertCMD = 
-			"INSERT INTO accounts (username, fullname, " + 
-				"password, email, tsjoined, offersdone, " + 
+		String insertCMD =
+			"INSERT INTO accounts (username, fullname, " +
+				"password, email, tsjoined, offersdone, " +
 				"issitter, isowner, city, state)" +
 			"VALUES('" + username + "', '" + fullname +
 				"', crypt('" + password + "', 'md5'), '" +
@@ -156,8 +159,9 @@ public class Login {
 			Connection connection
 			// TODO: To use this driver, you must edit this code to use your postgres user information.
 				= DriverManager.getConnection(//"jdbc:postgresql://dbhost:port/dbname", "user", "dbpass");
-												"jdbc:postgresql://127.0.0.1:5432/postgres",
-												"postgres", "password");
+												"jdbc:postgresql://127.0.0.1:5432/" +
+                        "final_project_presentation",
+												"emma", "pass");
 
 			Validation.statement
 				= connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,
@@ -167,7 +171,8 @@ public class Login {
 
 			while(!validResponse) {
 				System.out.println(PROMPT);
-				String str = Validation.preventSQLInjection(Validation.input.nextLine());
+				String str
+					= Validation.preventSQLInjection(Validation.input.nextLine());
 				System.out.println();
 				if (str.length() > 0)
 				{
@@ -206,7 +211,7 @@ public class Login {
 					else {
 						System.out.println(
 							"It seems like your account is not labelled " +
-							"as a pet owner, and therefore, cannot create offers.\n " + 
+							"as a pet owner, and therefore, cannot create offers.\n " +
 							"Would you like to update your account info? (Type y to accept.) ");
 						String in = Validation.preventSQLInjection(Validation.input.nextLine());
 						System.out.println();

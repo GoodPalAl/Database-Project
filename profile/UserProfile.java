@@ -33,7 +33,7 @@ public class UserProfile {
 		System.out.print("Enter new username: ");
 		String oldUsername = Validation.curUsername;
 		Validation.curUsername = Validation.getUsername();
-		Validation.updateSQL(genUpdateSQL("fullname",
+		Validation.updateSQL(genUpdateSQL("username",
 											"'" + Validation.curUsername + "'",
 											oldUsername));
 	}
@@ -113,7 +113,7 @@ public class UserProfile {
 
 	public static void displayUserProfile() {
 		try {
-			ResultSet rs = 
+			ResultSet rs =
 				Validation.querySQL(
 				"SELECT username, fullname, " +
 				"email, issitter, isowner, " +
@@ -123,21 +123,32 @@ public class UserProfile {
 				Validation.curUsername + "';");
 
 			while (rs.next()) {
-				System.out.println("username: " + rs.getString("username"));
-				System.out.println("fullname: " + rs.getString("fullname"));
-				System.out.println("email: " + rs.getString("email"));
-				System.out.println("pet sitter?: " + (rs.getBoolean("issitter") ? "yes" : "no"));
-				System.out.println("pet owner?: " + (rs.getBoolean("isowner") ? "yes" : "no"));
+				System.out.println("username: " +
+													 Validation.halveSingleQuotes(
+													  rs.getString("username")));
+				System.out.println("fullname: " +
+													 rs.getString("fullname"));
+				System.out.println("email: " +
+													 Validation.halveSingleQuotes(
+													  rs.getString("email")));
+				System.out.println("pet sitter?: " +
+													 (rs.getBoolean("issitter") ? "yes" : "no"));
+				System.out.println("pet owner?: " +
+													 (rs.getBoolean("isowner") ? "yes" : "no"));
 
 				// Only shows offersdone and rating IF the user is a pet sitter
 				if (rs.getBoolean("issitter")) {
 					System.out.println("offers done: " + rs.getInt("offersdone"));
-					System.out.println("rating: " + (rs.getDouble("rating") == 0.0 ? "none" : String.valueOf(rs.getDouble("rating"))));
+					System.out.println("rating: " +
+														 (rs.getDouble("rating") == 0.0 ? "none" :
+															String.valueOf(rs.getDouble("rating"))));
 				}
-				System.out.println("joined: " + 
-									Validation.DATE_FORMAT.format(new Date 
+				System.out.println("joined: " +
+									Validation.DATE_FORMAT.format(new Date
 										(rs.getTimestamp ("tsjoined").getTime())));
-				System.out.println("city: " + rs.getString("city"));
+				System.out.println("city: " +
+													 Validation.halveSingleQuotes(
+														rs.getString("city")));
 				System.out.println("state: " + rs.getString("state"));
 			}
 			rs.close();
@@ -149,7 +160,7 @@ public class UserProfile {
 	}
 
 	public static void editUserProfile() {
-		String USER_EDIT_OPTIONS = 	
+		String USER_EDIT_OPTIONS =
 			"Enter \n" +
 			"'u' for username, \n" +
 			"'p' for password, \n" +
@@ -163,9 +174,9 @@ public class UserProfile {
 
 		char response = 'z';
 		boolean badOption = false;
-		
+
 		do {
-			System.out.println("Please enter which part of your profile you " + 
+			System.out.println("Please enter which part of your profile you " +
 								"would like to update:\n" + USER_EDIT_OPTIONS);
 			String str = Validation.preventSQLInjection(Validation.input.nextLine());
 			System.out.println();
@@ -174,7 +185,7 @@ public class UserProfile {
 				System.out.println();
 				if (response == 'q')
 					break;
-				
+
 				try {
 					Method m = updateUserField.get(response);
 					if (m == null)
@@ -202,11 +213,11 @@ public class UserProfile {
 	// matching next page destination. Assumes curUsername has been validated
 	// prior.
 	public static char goToUserProfile() {
-		String USER_OPTIONS = 
+		String USER_OPTIONS =
 			"Enter\n" +
 			"'u' to update account information, \n" +
 			"'p' to view/edit pet information, \n" +
-			"'o' to view/edit your offer history, or\n" +
+			"'o' to view/edit your offer history,\n" +
 			"'v' to view account information again, or\n" +
 			"'e' to exit.";
 		// Display current profile information
@@ -228,7 +239,7 @@ public class UserProfile {
 					else {
 						System.out.println("Your account is not specified as an owner!");
 						System.out.print("Would you like to edit your profile to change that? (Enter y to accept.) ");
-						String in = Validation.preventSQLInjection(Validation.input.nextLine());
+						String in = Validation.input.nextLine();
 						if (in.length() > 0)
 							if (Character.toLowerCase(in.charAt(0)) == 'y')
 								editUserProfile();
@@ -241,7 +252,7 @@ public class UserProfile {
 					System.out.println();
 				}
 			}
-			else 
+			else
 				response = 'z';
 		} while (response != 'e');
 
@@ -249,7 +260,7 @@ public class UserProfile {
 		// Promp user if they would like to navigate to another page
 		do {
 			System.out.println(Validation.OPTIONS);
-			String str = Validation.preventSQLInjection(Validation.input.nextLine());
+			String str = Validation.input.nextLine();
 			if (str.length() > 0) {
 				c = Character.toLowerCase(str.charAt(0));
 				System.out.println();

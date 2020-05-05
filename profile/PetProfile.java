@@ -230,8 +230,10 @@ public class PetProfile
 			boolean petExists = false;
 			while(rs.next()) {
 				petExists = true;
-				System.out.println("petname: " + rs.getString("petname"));
-				System.out.println("pettype: " + rs.getString("pettype"));
+				System.out.println("petname: " +
+													 Validation.halveSingleQuotes(
+														rs.getString("petname")));
+			  System.out.println("pettype: " + rs.getString("pettype"));
 				int age = rs.getInt("age");
 				if (age < 1)
 					System.out.println("age: less than a year");

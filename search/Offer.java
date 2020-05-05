@@ -20,17 +20,17 @@ import util.Validation;
 import profile.PetProfile;
 
 
-public class Offer 
+public class Offer
 {
 	protected static Integer curOfferID;
-	
+
 	public static char goToCreateOffer()
 	{
 		curOfferID = null;
 		int numPets = 0;
 		try{
 			ResultSet rs = Validation.statement.executeQuery(
-				"SELECT COUNT(*) as count FROM pets WHERE owner = '" + 
+				"SELECT COUNT(*) as count FROM pets WHERE owner = '" +
 				Validation.curUsername + "';");
 			while(rs.next())
 				numPets = rs.getInt("count");
@@ -40,7 +40,7 @@ public class Offer
 			System.err.println(e);
 			System.exit(-1);
 		}
-		// Account must own at least one pet 
+		// Account must own at least one pet
 		if (numPets > 0) {
 			PetProfile.displayPetInfo(null);
 			createOffer();
@@ -50,14 +50,14 @@ public class Offer
 				"There are no pets on your account! \n"+
 				"Add a pet to your account before making an offer post.");
 		}
-		
+
 		curOfferID = null;
 
 		char c = 'z';
-		// Promp user if they would like to navigate to another page
+		// Prompt user if they would like to navigate to another page
 		do {
 			System.out.println(Validation.OPTIONS);
-			String str = Validation.preventSQLInjection(Validation.input.nextLine());
+			String str = Validation.input.nextLine();
 			System.out.println();
 			if (str.length() > 0) {
 				c = Character.toLowerCase(str.charAt(0));
@@ -65,72 +65,78 @@ public class Offer
 		} while (!Validation.isValidOption(c));
 		return c;
 	}
-	
+
     public static void createOffer()
     {
-		String desc;
-		Timestamp start, end;
-        double payment; 
-        int sitting;
+			String desc;
+			Timestamp start, end;
+			double payment;
+			int sitting;
 
-        System.out.print("Which of your pets is this offer for? ");
-		sitting = Validation.getSitting();
-		
-		if (Validation.numMatches("SELECT * from offers where sitting = " + sitting + ";") >= 1){
-			System.out.println("There is already an offer regarding this pet!");
+			System.out.print("Which of your pets is this offer for? ");
+			sitting = Validation.getSitting();
+
+			if (Validation.numMatches("SELECT * from offers where sitting = " +
+																sitting + ";") >= 1) {
+				System.out.println("There is already an offer regarding this pet!");
+				System.out.println();
+				return;
+			}
+
+			System.out.println("When does your pet need to be sat? ");
+			start = Validation.getOfferStartDate();
+			end = Validation.getOfferEndDate();
+
+			System.out.print("Enter payment amount (enter 0 to not list a " +
+											 "price): $");
+			payment = Validation.getPayment();
+
+			System.out.println("Please provide any additional information " +
+												 "regarding this post. Limit of " +
+												 Validation.DESC_MAX_LENGTH + " characters. " +
+												 "Press enter when done.\n");
+			// Ensure single quotes are escaped
+			desc = Validation.preventSQLInjection(Validation.getDescription());
+
+			String insertCMD =
+				"INSERT INTO offers (description, " +
+				"tsposted, tsstart, tsend, payment, " +
+				"sitting) " +
+				"VALUES('"+ desc.toString() + "', NOW() , " +
+				"TIMESTAMP '" + start + "', " +
+				"TIMESTAMP '" + end +  "', " +
+				payment + ", " + sitting + ");";
+
+			Validation.updateSQL(insertCMD);
+			System.out.println("Offer created!");
 			System.out.println();
-			return;
-		}
-        
-        System.out.println("When does your pet need to be sat? ");
-        start = Validation.getOfferStartDate();
-        end = Validation.getOfferEndDate();
-
-        System.out.print("Enter payment amount: $");
-        payment = Validation.getPayment();
-
-        System.out.println("Please provide any additional information " +
-                           		"regarding this post. Limit of " +
-								Validation.DESC_MAX_LENGTH + " characters. " +
-								"Press enter when done.\n");
-		desc = Validation.preventSQLInjection(Validation.getDescription());
-
-        String insertCMD = "INSERT INTO offers (description, " +
-                                "tsposted, tsstart, tsend, payment, " +
-                                "sitting) " +
-					      	"VALUES('"+ desc.toString() + "', NOW() , " +
-								"TIMESTAMP '" + start + "', " +
-								"TIMESTAMP '" + end +  "', " +
-								payment + ", " + sitting + ");";
-
-		Validation.updateSQL(insertCMD);
-		System.out.println("Offer created!");
-		System.out.println();
 	}
 
 	public static void displayOfferInfo(Integer petID) {
-	String query =
-		"SELECT description, tsposted, tsstart, tsend, payment, petname, acceptby " +
-		"FROM offers, pets, accounts WHERE sitting = petID " +
-		"AND owner = username " + 
-		(petID == null ? "" : " AND petID = " + petID + "") +
-		"ORDER BY tsposted;";
+		String query =
+			"SELECT description, tsposted, tsstart, tsend, payment, petname, " +
+			"acceptby FROM offers, pets, accounts WHERE sitting = petID " +
+			"AND owner = username " +
+			(petID == null ? "" : " AND petID = " + petID + "") +
+			"ORDER BY tsposted;";
 		try {
 			ResultSet rs = Validation.statement.executeQuery(query);
 			while (rs.next()) {
-				System.out.println("Pet Name: " + rs.getString("petName"));
-				System.out.println("Time posted: " + 
-										Validation.TS_FORMAT.format
-										(new Timestamp
-										(rs.getTimestamp("tsposted").getTime())));
-				System.out.print("Schedule: " + 
-										Validation.TS_FORMAT.format
-										(new Timestamp
-										(rs.getTimestamp("tsstart").getTime())));
-				System.out.println(" to " +  
-										Validation.TS_FORMAT.format
-										(new Timestamp
-										(rs.getTimestamp("tsend").getTime())));
+				System.out.println("Pet Name: " +
+													 Validation.halveSingleQuotes(
+																												rs.getString("petName")));
+				System.out.println("Time posted: " +
+													 Validation.TS_FORMAT.format
+													 (new Timestamp
+														(rs.getTimestamp("tsposted").getTime())));
+				System.out.print("Schedule: " +
+												 Validation.TS_FORMAT.format
+												 (new Timestamp
+													(rs.getTimestamp("tsstart").getTime())));
+				System.out.println(" to " +
+													 Validation.TS_FORMAT.format
+													 (new Timestamp
+														(rs.getTimestamp("tsend").getTime())));
 				Double pay = rs.getDouble("payment");
 				if (pay != 0.0) {
 					System.out.print("Payment: $");
@@ -143,8 +149,8 @@ public class Offer
 				String desc = rs.getString("description");
 				if (desc.length() > 0)
 					System.out.println("Description:\n    \"" +
-										desc + "\"");
-				else { 
+														 Validation.halveSingleQuotes(desc) + "\"");
+				else {
 					System.out.println("Description: none");
 				}
 				String acceptedBy = rs.getString("acceptby");
@@ -160,11 +166,14 @@ public class Offer
 		}
 	}
 
-	public static void displayOfferInfo(int offset, ArrayList<String> includedTypes) {
-		String query = 
+	public static void displayOfferInfo(int offset,
+																			ArrayList<String> includedTypes) {
+		String query =
 			"SELECT description, tsposted, tsstart, tsend, payment, petname " +
 			"FROM offers, pets, accounts " +
 			"WHERE sitting = petid AND owner = username " +
+			// User cannot search for their own pets
+			"AND owner <> '" + Validation.curUsername + "' " +
 			(includedTypes.size() ==
 				Validation.petTypes.length ? "" : "AND ("
 				+ Search.filterQuery(includedTypes) + ") ") +
@@ -173,16 +182,18 @@ public class Offer
 		try {
 			ResultSet rs = Validation.statement.executeQuery(query);
 			while (rs.next()) {
-				System.out.println("Pet Name: " + rs.getString("petName"));
-				System.out.println("Time posted: " + 
+				System.out.println("Pet Name: " +
+													 Validation.halveSingleQuotes(
+														rs.getString("petName")));
+				System.out.println("Time posted: " +
 										Validation.TS_FORMAT.format
 										(new Timestamp
 										(rs.getTimestamp("tsposted").getTime())));
-				System.out.print("Schedule: " + 
+				System.out.print("Schedule: " +
 										Validation.TS_FORMAT.format
 										(new Timestamp
 										(rs.getTimestamp("tsstart").getTime())));
-				System.out.println(" to " +  
+				System.out.println(" to " +
 										Validation.TS_FORMAT.format
 										(new Timestamp
 										(rs.getTimestamp("tsend").getTime())));
@@ -192,11 +203,13 @@ public class Offer
 					System.out.printf("%.02f", pay);
 					System.out.println();
 				}
-				System.out.println("Description: \"" + rs.getString("description") + "\"");
+				System.out.println("Description: \"" +
+													 Validation.halveSingleQuotes(
+														rs.getString("description")) + "\"");
 				System.out.println();
 			}
 			rs.close();
-        }
+		}
 		catch (java.sql.SQLException e) {
 			System.err.println(e);
 			System.exit(-1);
@@ -205,9 +218,9 @@ public class Offer
 
 	public static void displayOfferHistory() {
 		final String OFFER_HISTORY_OPTIONS =
-			"Enter\n" + 
+			"Enter\n" +
 			"'a' to view accepted offers,\n" +
-			"'p' to view pending offers, or\n" + 
+			"'p' to view pending offers, or\n" +
 			"'e' to exit.";
 		String in;
 		do {
@@ -226,17 +239,17 @@ public class Offer
 	}
 
 	public static void displayPendingOffers() {
-		final String PENDING_OFFERS_OPTIONS = 
+		final String PENDING_OFFERS_OPTIONS =
 		"Enter\n'd' to delete an offer, or \n'e' to exit.";
 
-		String query = 
+		String query =
 			"SELECT * " +
 			"FROM offers, pets, accounts " +
 			"WHERE acceptby IS NULL " +
 			"AND sitting = petid AND owner = username " +
-			"AND owner = '" + Validation.curUsername + "' " + 
+			"AND owner = '" + Validation.curUsername + "' " +
 			"ORDER BY tsposted DESC;";
-		
+
 		try {
 			ArrayList<Integer> acceptedPets = new ArrayList<Integer>();
 			ResultSet rs = Validation.statement.executeQuery(query);
@@ -248,12 +261,12 @@ public class Offer
 			}
 			rs.close();
 
-			if (acceptedPets.size() == 0){				
+			if (acceptedPets.size() == 0){
 				System.err.println("You have no pending offers!");
 				System.out.println();
 				return;
 			}
-			
+
 			else {
 				for (int i = 0; i < acceptedPets.size(); ++i) {
 					int petid = acceptedPets.get(i);
@@ -302,17 +315,17 @@ public class Offer
 	}
 
 	public static void displayAcceptedOffers(){
-		final String ACCEPTED_OFFERS_OPTIONS = 
+		final String ACCEPTED_OFFERS_OPTIONS =
 		"Enter\n'r' to rate an offer, or \n'e' to exit.";
 
-		String query = 
+		String query =
 			"SELECT * " +
 			"FROM offers, pets " +
 			"WHERE acceptby IS NOT NULL " +
 			"AND sitting = petid " +
-			"AND owner = '" + Validation.curUsername + "' " + 
+			"AND owner = '" + Validation.curUsername + "' " +
 			"ORDER BY tsposted DESC;";
-		
+
 		try {
 			ArrayList<Integer> acceptedPets = new ArrayList<Integer>();
 			ResultSet rs = Validation.statement.executeQuery(query);
@@ -324,12 +337,12 @@ public class Offer
 			}
 			rs.close();
 
-			if (acceptedPets.size() == 0){				
+			if (acceptedPets.size() == 0){
 				System.err.println("You have no accepted offers at the moment.");
 				System.out.println();
 				return;
 			}
-			
+
 			else {
 				for (int i = 0; i < acceptedPets.size(); ++i) {
 					int petid = acceptedPets.get(i);
@@ -373,25 +386,26 @@ public class Offer
 		}
 	}
 
-	public static void giveRating(int offset){		
-		// Get username of person who accepted the offer 
+	public static void giveRating(int offset){
+		// Get username of person who accepted the offer
 		//		and their previous rating
-		String query = 
-			"SELECT offerid, acceptby, rating " +
-			"FROM offers, pets, accounts " +
+		String query =
+			"SELECT offerid, acceptBy, acceptee.rating " +
+			"FROM offers, pets, accounts postedBy, accounts acceptee " +
 			"WHERE acceptby IS NOT NULL " +
 			"AND sitting = petid " +
-			"AND owner = username " +
-			"AND owner = '" + Validation.curUsername + "' " + 
+			"AND owner = postedBy.username " +
+			"AND owner = '" + Validation.curUsername + "' " +
+			"AND acceptee.username = acceptBy " +
 			"ORDER BY tsposted DESC LIMIT 1 OFFSET " + offset + ";";
 		try {
 			String acceptedBy = "";
 			Double oldRating = null;
 			Integer offerid = null;
 			ResultSet rs = Validation.statement.executeQuery(query);
-			
+
 			while (rs.next()) {
-				acceptedBy = rs.getString("acceptby"); 
+				acceptedBy = rs.getString("acceptby");
 				oldRating = rs.getDouble("rating");
 				offerid = rs.getInt("offerid");
 			}
@@ -416,17 +430,17 @@ public class Offer
 					// First rating!
 					if (oldRating == 0.0)
 						Validation.updateSQL("UPDATE accounts SET rating = " +  rating +
-											" WHERE username = '" + acceptedBy + 
+											" WHERE username = '" + acceptedBy +
 											"';");
 					else
 						Validation.updateSQL("UPDATE accounts SET rating = " +
-											"(((rating * offersdone) + " + 
+											"(((rating * offersdone) + " +
 											rating + ") / (offersdone + 1)) " +
 											"WHERE username = '" + acceptedBy + "';");
-					
+
 					// Increment # of offers done when rating is being given
 					Validation.updateSQL("UPDATE accounts SET offersdone = " +
-											"(offersdone + 1) WHERE username = '" + 
+											"(offersdone + 1) WHERE username = '" +
 											acceptedBy + "';");
 					System.out.println("Rating submitted!\n");
 					Validation.statement.execute("DELETE FROM offers WHERE " +
@@ -435,7 +449,7 @@ public class Offer
 				else
 					validOption = false;
 			} while (!validOption);
-			
+
 		}
 		catch (java.sql.SQLException e) {
 			System.err.println(e);
@@ -446,20 +460,20 @@ public class Offer
 	public static void deletePendingOffer(int offset){
 		String query = 
 			"SELECT offerid " +
-			"FROM offers, pets, accounts " +
+			"FROM offers, pets, accounts WHERE acceptBy IS NULL " +
 			"AND sitting = petid " +
 			"AND owner = username " +
-			"AND owner = '" + Validation.curUsername + "' " + 
+			"AND owner = '" + Validation.curUsername + "' " +
 			"ORDER BY tsposted DESC LIMIT 1 OFFSET " + offset + ";";
 		try {
 			Integer offerid = null;
 			ResultSet rs = Validation.statement.executeQuery(query);
 			while (rs.next())
 				offerid = rs.getInt("offerid");
-			rs.close();		
-			System.out.println("DELETEING OFFER WITH ID #" + offerid);
+			rs.close();
+			System.out.println("Offer deleted!");
 			Validation.statement.execute("DELETE FROM offers WHERE " +
-											"offerid = " + offerid + ";");			
+											"offerid = " + offerid + ";");
 		}
 		catch (java.sql.SQLException e) {
 			System.err.println(e);
